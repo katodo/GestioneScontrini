@@ -198,7 +198,7 @@
         </thead>
         <tbody>
             {% for expense in expenses %}
-            <tr>
+            <tr style="background-color: {{ get_pastel_color(expense[2]) }};">
                 <td data-label="Utente">{{ expense[1] }}</td>
                 <td data-label="Data">{{ expense[2] }}</td>
                 <td data-label="Importo">{{ expense[3] }}</td>

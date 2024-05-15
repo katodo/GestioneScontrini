@@ -52,10 +52,14 @@ def get_pastel_color(month):
 def index():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
-    c.execute('SELECT id, user, date, amount, merchant, description, receipt FROM expenses ORDER BY date DESC')
+    c.execute('''
+        SELECT id, user, date, amount, merchant, description, receipt
+        FROM expenses
+        ORDER BY strftime('%Y-%m', date) ASC, user ASC
+    ''')
     expenses = c.fetchall()
     conn.close()
-    return render_template('index.html', expenses=expenses)
+    return render_template('index.html', expenses=expenses, get_pastel_color=get_pastel_color)
 
 @app.route('/add', methods=['POST'])
 def add_expense():
