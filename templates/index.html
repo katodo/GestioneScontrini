@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Spese</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/autocomplete')
+                .then(response => response.json())
+                .then(data => {
+                    const users = data.users;
+                    const merchants = data.merchants;
+
+                    const userInput = document.getElementById('user-input');
+                    const merchantInput = document.getElementById('merchant-input');
+
+                    userInput.addEventListener('input', function() {
+                        showSuggestions(this, users);
+                    });
+
+                    merchantInput.addEventListener('input', function() {
+                        showSuggestions(this, merchants);
+                    });
+                });
+
+            function showSuggestions(input, suggestions) {
+                const value = input.value.toLowerCase();
+                const list = document.createElement('ul');
+                list.classList.add('suggestions');
+
+                suggestions.forEach(suggestion => {
+                    if (suggestion.toLowerCase().startsWith(value)) {
+                        const item = document.createElement('li');
+                        item.textContent = suggestion;
+                        item.addEventListener('click', () => {
+                            input.value = suggestion;
+                            clearSuggestions(input);
+                        });
+                        list.appendChild(item);
+                    }
+                });
+
+                clearSuggestions(input);
+                input.parentNode.appendChild(list);
+            }
+
+            function clearSuggestions(input) {
+                const currentSuggestions = input.parentNode.querySelectorAll('.suggestions');
+                currentSuggestions.forEach(suggestion => suggestion.remove());
+            }
+        });
+    </script>
+    <style>
+        .suggestions {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ccc;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .suggestions li {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .suggestions li:hover {
+            background-color: #ddd;
+        }
+
+        .thumbnail {
+            width: 50px;
+            height: 50px;
+        }
+
+        /* Responsive styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        form div {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td img {
+            display: block;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            table, th, td {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 5px;
+            }
+
+            form {
+                padding: 5px;
+            }
+
+            form div {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Gestione Spese</h1>
+    <form action="/add" method="post" enctype="multipart/form-data">
+        <div>
+            <input type="text" id="user-input" name="user" placeholder="Utente" required>
+        </div>
+        <div>
+            <input type="date" name="date" required>
+        </div>
+        <div>
+            <input type="number" name="amount" step="0.01" placeholder="Importo" required>
+        </div>
+        <div>
+            <input type="text" id="merchant-input" name="merchant" placeholder="Esercente" required>
+        </div>
+        <div>
+            <input type="file" name="receipt" accept="image/*">
+        </div>
+        <button type="submit">Aggiungi</button>
+    </form>
+
+    <h2>Spese</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Utente</th>
+                <th>Data</th>
+                <th>Importo</th>
+                <th>Esercente</th>
+                <th>Ricevuta</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense[1] }}</td>
+                <td>{{ expense[2] }}</td>
+                <td>{{ expense[3] }}</td>
+                <td>{{ expense[4] }}</td>
+                <td>
+                    {% if expense[5] %}
+                    <a href="/receipt/{{ expense[0] }}" target="_blank">
+                        <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Ricevuta" class="thumbnail">
+                    </a>
+                    {% else %}
+                    <form action="/add_receipt/{{ expense[0] }}" method="post" enctype="multipart/form-data" style="display:inline;">
+                        <input type="file" name="receipt" accept="image/*" required>
+                        <button type="submit">Carica</button>
+                    </form>
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="/delete/{{ expense[0] }}" method="post" style="display:inline;">
+                        <button type="submit">Elimina</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="/summary">Riepilogo</a>
+</body>
+</html>
+

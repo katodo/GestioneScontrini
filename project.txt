@@ -1,0 +1,12 @@
+/GestioneScontrini
+│
+├── app.py
+├── requirements.txt
+├── LICENSE
+├── README.md
+├── expenses.db (creato automaticamente al primo avvio)
+├── uploads (creato automaticamente al primo avvio)
+└── templates
+    ├── index.html
+    └── summary.html
+
