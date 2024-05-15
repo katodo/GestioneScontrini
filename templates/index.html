@@ -123,21 +123,38 @@
             margin: 0 auto;
         }
 
+        /* Responsive table */
         @media (max-width: 600px) {
-            table, th, td {
-                font-size: 14px;
+            table, thead, tbody, th, td, tr {
+                display: block;
             }
 
-            th, td {
-                padding: 5px;
+            thead tr {
+                display: none;
             }
 
-            form {
-                padding: 5px;
+            tr {
+                margin-bottom: 10px;
+                border-bottom: 1px solid #ccc;
             }
 
-            form div {
-                margin-bottom: 5px;
+            td {
+                padding: 10px;
+                text-align: right;
+                position: relative;
+            }
+
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                font-weight: bold;
+                text-align: left;
+            }
+
+            .thumbnail {
+                width: 100px;
+                height: 100px;
             }
         }
     </style>
@@ -178,11 +195,11 @@
         <tbody>
             {% for expense in expenses %}
             <tr>
-                <td>{{ expense[1] }}</td>
-                <td>{{ expense[2] }}</td>
-                <td>{{ expense[3] }}</td>
-                <td>{{ expense[4] }}</td>
-                <td>
+                <td data-label="Utente">{{ expense[1] }}</td>
+                <td data-label="Data">{{ expense[2] }}</td>
+                <td data-label="Importo">{{ expense[3] }}</td>
+                <td data-label="Esercente">{{ expense[4] }}</td>
+                <td data-label="Ricevuta">
                     {% if expense[5] %}
                     <a href="/receipt/{{ expense[0] }}" target="_blank">
                         <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Ricevuta" class="thumbnail">
@@ -194,7 +211,7 @@
                     </form>
                     {% endif %}
                 </td>
-                <td>
+                <td data-label="Azioni">
                     <form action="/delete/{{ expense[0] }}" method="post" style="display:inline;">
                         <button type="submit">Elimina</button>
                     </form>
