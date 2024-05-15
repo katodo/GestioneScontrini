@@ -18,6 +18,7 @@ def init_db():
             date TEXT NOT NULL,
             amount REAL NOT NULL,
             merchant TEXT NOT NULL,
+            description TEXT,
             receipt BLOB
         )
     ''')
@@ -51,7 +52,7 @@ def get_pastel_color(month):
 def index():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
-    c.execute('SELECT id, user, date, amount, merchant, receipt FROM expenses ORDER BY date DESC')
+    c.execute('SELECT id, user, date, amount, merchant, description, receipt FROM expenses ORDER BY date DESC')
     expenses = c.fetchall()
     conn.close()
     return render_template('index.html', expenses=expenses)
@@ -62,6 +63,7 @@ def add_expense():
     date = request.form['date']
     amount = request.form['amount']
     merchant = request.form['merchant']
+    description = request.form['description']
     receipt = request.files.get('receipt')
 
     if receipt:
@@ -75,9 +77,9 @@ def add_expense():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
     c.execute('''
-        INSERT INTO expenses (user, date, amount, merchant, receipt)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (user, date, amount, merchant, receipt_blob))
+        INSERT INTO expenses (user, date, amount, merchant, description, receipt)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (user, date, amount, merchant, description, receipt_blob))
     conn.commit()
     conn.close()
     return redirect(url_for('index'))

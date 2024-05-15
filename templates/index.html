@@ -175,6 +175,9 @@
             <input type="text" id="merchant-input" name="merchant" placeholder="Esercente" required>
         </div>
         <div>
+            <textarea name="description" placeholder="Descrizione" rows="3"></textarea>
+        </div>
+        <div>
             <input type="file" name="receipt" accept="image/*">
         </div>
         <button type="submit">Aggiungi</button>
@@ -188,6 +191,7 @@
                 <th>Data</th>
                 <th>Importo</th>
                 <th>Esercente</th>
+                <th>Descrizione</th>
                 <th>Ricevuta</th>
                 <th>Azioni</th>
             </tr>
@@ -199,8 +203,9 @@
                 <td data-label="Data">{{ expense[2] }}</td>
                 <td data-label="Importo">{{ expense[3] }}</td>
                 <td data-label="Esercente">{{ expense[4] }}</td>
+                <td data-label="Descrizione">{{ expense[5] }}</td>
                 <td data-label="Ricevuta">
-                    {% if expense[5] %}
+                    {% if expense[6] %}
                     <a href="/receipt/{{ expense[0] }}" target="_blank">
                         <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Ricevuta" class="thumbnail">
                     </a>
