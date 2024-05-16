@@ -217,9 +217,7 @@
                     {% endif %}
                 </td>
                 <td data-label="Azioni">
-                    <form action="/delete/{{ expense[0] }}" method="post" style="display:inline;">
-                        <button type="submit">Elimina</button>
-                    </form>
+                    <a href="{{ url_for('edit_expense', id=expense[0]) }}">Edit</a>
                 </td>
             </tr>
             {% endfor %}
@@ -230,4 +228,3 @@
     <a href="/summary">Riepilogo</a>
 </body>
 </html>
-

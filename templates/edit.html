@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Spesa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        form div {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modifica Spesa</h1>
+    <form action="{{ url_for('update_expense', id=expense[0]) }}" method="post" enctype="multipart/form-data">
+        <div>
+            <input type="text" name="user" value="{{ expense[1] }}" placeholder="Utente" required>
+        </div>
+        <div>
+            <input type="date" name="date" value="{{ expense[2] }}" required>
+        </div>
+        <div>
+            <input type="number" name="amount" value="{{ expense[3] }}" step="0.01" placeholder="Importo" required>
+        </div>
+        <div>
+            <input type="text" name="merchant" value="{{ expense[4] }}" placeholder="Esercente" required>
+        </div>
+        <div>
+            <textarea name="description" placeholder="Descrizione" rows="3">{{ expense[5] }}</textarea>
+        </div>
+        <div>
+            <input type="file" name="receipt" accept="image/*">
+            {% if expense[6] %}
+            <br>
+            <img src="{{ url_for('get_receipt_thumbnail', id=expense[0]) }}" alt="Ricevuta attuale" class="thumbnail">
+            {% endif %}
+        </div>
+        <div>
+            <button type="submit">Update</button>
+            <button type="button" onclick="if(confirm('Sei sicuro di voler eliminare questa spesa?')) { window.location.href='{{ url_for('delete_expense', id=expense[0]) }}'; }">Elimina Record</button>
+            <button type="button" onclick="window.location.href='{{ url_for('index') }}';">Annulla</button>
+        </div>
+    </form>
+</body>
+</html>

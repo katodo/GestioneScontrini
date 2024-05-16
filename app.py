@@ -88,6 +88,48 @@ def add_expense():
     conn.close()
     return redirect(url_for('index'))
 
+@app.route('/edit/<int:id>')
+def edit_expense(id):
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    c.execute('SELECT id, user, date, amount, merchant, description, receipt FROM expenses WHERE id = ?', (id,))
+    expense = c.fetchone()
+    conn.close()
+    return render_template('edit.html', expense=expense)
+
+@app.route('/update/<int:id>', methods=['POST'])
+def update_expense(id):
+    user = request.form['user']
+    date = request.form['date']
+    amount = request.form['amount']
+    merchant = request.form['merchant']
+    description = request.form['description']
+    receipt = request.files.get('receipt')
+
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    
+    if receipt:
+        filename = secure_filename(receipt.filename)
+        receipt.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb') as f:
+            receipt_blob = f.read()
+        c.execute('''
+            UPDATE expenses
+            SET user = ?, date = ?, amount = ?, merchant = ?, description = ?, receipt = ?
+            WHERE id = ?
+        ''', (user, date, amount, merchant, description, receipt_blob, id))
+    else:
+        c.execute('''
+            UPDATE expenses
+            SET user = ?, date = ?, amount = ?, merchant = ?, description = ?
+            WHERE id = ?
+        ''', (user, date, amount, merchant, description, id))
+    
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
+
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_expense(id):
     conn = sqlite3.connect('expenses.db')
@@ -184,4 +226,3 @@ def autocomplete():
 if __name__ == '__main__':
     initialize()
     app.run(debug=True, host='0.0.0.0', port=5005)
-
