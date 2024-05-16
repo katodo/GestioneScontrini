@@ -27,6 +27,19 @@
         form div {
             margin-bottom: 10px;
         }
+
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-buttons button {
+            margin-right: 10px;
+        }
+
+        .form-buttons button:last-child {
+            margin-right: 0;
+        }
     </style>
 </head>
 <body>
@@ -54,11 +67,14 @@
             <img src="{{ url_for('get_receipt_thumbnail', id=expense[0]) }}" alt="Ricevuta attuale" class="thumbnail">
             {% endif %}
         </div>
-        <div>
+        <div class="form-buttons">
             <button type="submit">Update</button>
-            <button type="button" onclick="if(confirm('Sei sicuro di voler eliminare questa spesa?')) { window.location.href='{{ url_for('delete_expense', id=expense[0]) }}'; }">Elimina Record</button>
+            <button type="button" onclick="document.getElementById('delete-form').submit();">Elimina Record</button>
             <button type="button" onclick="window.location.href='{{ url_for('index') }}';">Annulla</button>
         </div>
+    </form>
+    <form id="delete-form" action="{{ url_for('delete_expense', id=expense[0]) }}" method="post">
+        <input type="hidden" name="delete" value="true">
     </form>
 </body>
 </html>

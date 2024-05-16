@@ -132,12 +132,20 @@ def update_expense(id):
 
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_expense(id):
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute('DELETE FROM expenses WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect('expenses.db')
+        c = conn.cursor()
+        print(f"Attempting to delete record with id: {id}")
+        c.execute('DELETE FROM expenses WHERE id = ?', (id,))
+        if c.rowcount == 0:
+            print(f"No record found with id: {id}")
+        conn.commit()
+        conn.close()
+        print(f"Record with id: {id} deleted successfully")
+    except Exception as e:
+        print(f"Error deleting record with id: {id}, error: {e}")
     return redirect(url_for('index'))
+
 
 @app.route('/add_receipt/<int:id>', methods=['POST'])
 def add_receipt(id):
