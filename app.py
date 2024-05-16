@@ -32,6 +32,10 @@ def initialize():
         os.makedirs(app.config['UPLOAD_FOLDER'])
 
 def get_pastel_color(month):
+    if '-' not in month:
+        print(f"Invalid month format: {month}")
+        return '#FFFFFF'
+    
     colors = {
         '01': '#FFB3BA',  # January - Light Red
         '02': '#FFDFBA',  # February - Light Orange
@@ -46,7 +50,11 @@ def get_pastel_color(month):
         '11': '#E1FFC9',  # November - Light Mint
         '12': '#FFF0BA'   # December - Light Beige
     }
-    return colors.get(month.split('-')[1], '#FFFFFF')
+    
+    month_part = month.split('-')[1]
+    color = colors.get(month_part, '#FFFFFF')
+    print(f"Month: {month}, Color: {color}")
+    return color
 
 @app.route('/')
 def index():
@@ -206,6 +214,19 @@ def get_receipt_thumbnail(id):
         )
     return "No thumbnail available"
 
+def get_merchant_expenses():
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    c.execute('''
+        SELECT merchant, strftime('%Y', date) as year, SUM(amount)
+        FROM expenses
+        GROUP BY merchant, year
+        ORDER BY year ASC, merchant ASC
+    ''')
+    merchant_expenses = c.fetchall()
+    conn.close()
+    return merchant_expenses
+
 @app.route('/summary')
 def summary():
     conn = sqlite3.connect('expenses.db')
@@ -217,8 +238,11 @@ def summary():
         ORDER BY month ASC
     ''')
     summary = c.fetchall()
+
+    merchant_expenses = get_merchant_expenses()
     conn.close()
-    return render_template('summary.html', summary=summary, get_pastel_color=get_pastel_color)
+    return render_template('summary.html', summary=summary, merchant_expenses=merchant_expenses, get_pastel_color=get_pastel_color)
+
 
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():

@@ -57,11 +57,47 @@
         </thead>
         <tbody>
             {% for entry in summary %}
+            {% if entry[1] %}
             <tr style="background-color: {{ get_pastel_color(entry[1]) }};">
                 <td>{{ entry[0] }}</td>
                 <td>{{ entry[1] }}</td>
                 <td>{{ entry[2] }}</td>
             </tr>
+            {% else %}
+            <tr>
+                <td>{{ entry[0] }}</td>
+                <td>{{ entry[1] }}</td>
+                <td>{{ entry[2] }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h1>Riepilogo Spese per Esercente e Anno</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Esercente</th>
+                <th>Anno</th>
+                <th>Totale Spese</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in merchant_expenses %}
+            {% if entry[1] %}
+            <tr style="background-color: {{ get_pastel_color(entry[1]) }};">
+                <td>{{ entry[0] }}</td>
+                <td>{{ entry[1] }}</td>
+                <td>{{ entry[2] }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ entry[0] }}</td>
+                <td>{{ entry[1] }}</td>
+                <td>{{ entry[2] }}</td>
+            </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
