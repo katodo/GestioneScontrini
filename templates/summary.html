@@ -34,6 +34,11 @@
             background-color: #f2f2f2;
         }
 
+        .year-separator {
+            background-color: #000;
+            height: 2px;
+        }
+
         @media (max-width: 600px) {
             table, th, td {
                 font-size: 14px;
@@ -56,20 +61,19 @@
             </tr>
         </thead>
         <tbody>
+            {% set current_year = None %}
             {% for entry in summary %}
-            {% if entry[1] %}
+            {% if current_year != entry[1].split('-')[0] %}
+                {% if current_year is not none %}
+                <tr class="year-separator"><td colspan="3"></td></tr>
+                {% endif %}
+                {% set current_year = entry[1].split('-')[0] %}
+            {% endif %}
             <tr style="background-color: {{ get_pastel_color(entry[1]) }};">
                 <td>{{ entry[0] }}</td>
                 <td>{{ entry[1] }}</td>
                 <td>{{ entry[2] }}</td>
             </tr>
-            {% else %}
-            <tr>
-                <td>{{ entry[0] }}</td>
-                <td>{{ entry[1] }}</td>
-                <td>{{ entry[2] }}</td>
-            </tr>
-            {% endif %}
             {% endfor %}
         </tbody>
     </table>
@@ -84,20 +88,19 @@
             </tr>
         </thead>
         <tbody>
+            {% set current_year = None %}
             {% for entry in merchant_expenses %}
-            {% if entry[1] %}
+            {% if current_year != entry[1] %}
+                {% if current_year is not none %}
+                <tr class="year-separator"><td colspan="3"></td></tr>
+                {% endif %}
+                {% set current_year = entry[1] %}
+            {% endif %}
             <tr style="background-color: {{ get_pastel_color(entry[1]) }};">
                 <td>{{ entry[0] }}</td>
                 <td>{{ entry[1] }}</td>
                 <td>{{ entry[2] }}</td>
             </tr>
-            {% else %}
-            <tr>
-                <td>{{ entry[0] }}</td>
-                <td>{{ entry[1] }}</td>
-                <td>{{ entry[2] }}</td>
-            </tr>
-            {% endif %}
             {% endfor %}
         </tbody>
     </table>

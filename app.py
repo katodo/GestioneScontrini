@@ -63,11 +63,12 @@ def index():
     c.execute('''
         SELECT id, user, date, amount, merchant, description, receipt
         FROM expenses
-        ORDER BY strftime('%Y-%m', date) ASC, user ASC
+        ORDER BY date DESC
     ''')
     expenses = c.fetchall()
     conn.close()
     return render_template('index.html', expenses=expenses, get_pastel_color=get_pastel_color)
+
 
 @app.route('/add', methods=['POST'])
 def add_expense():
@@ -221,7 +222,7 @@ def get_merchant_expenses():
         SELECT merchant, strftime('%Y', date) as year, SUM(amount)
         FROM expenses
         GROUP BY merchant, year
-        ORDER BY year ASC, merchant ASC
+        ORDER BY year DESC, merchant ASC
     ''')
     merchant_expenses = c.fetchall()
     conn.close()
@@ -235,7 +236,7 @@ def summary():
         SELECT user, strftime('%Y-%m', date) as month, SUM(amount)
         FROM expenses
         GROUP BY user, month
-        ORDER BY month ASC
+        ORDER BY month DESC
     ''')
     summary = c.fetchall()
 
