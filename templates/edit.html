@@ -40,6 +40,11 @@
         .form-buttons button:last-child {
             margin-right: 0;
         }
+
+        .thumbnail {
+            width: 64px;
+            height: 64px;
+        }
     </style>
 </head>
 <body>
@@ -61,10 +66,11 @@
             <textarea name="description" placeholder="Descrizione" rows="3">{{ expense[5] }}</textarea>
         </div>
         <div>
-            <input type="file" name="receipt" accept="image/*">
+            <input type="file" name="receipt" accept="image/*,application/pdf">
             {% if expense[6] %}
             <br>
             <img src="{{ url_for('get_receipt_thumbnail', id=expense[0]) }}" alt="Ricevuta attuale" class="thumbnail">
+            <button type="button" onclick="if(confirm('Sei sicuro di voler eliminare questa ricevuta?')) { document.getElementById('delete-receipt-form').submit(); }">Elimina Ricevuta</button>
             {% endif %}
         </div>
         <div class="form-buttons">
@@ -75,6 +81,9 @@
     </form>
     <form id="delete-form" action="{{ url_for('delete_expense', id=expense[0]) }}" method="post">
         <input type="hidden" name="delete" value="true">
+    </form>
+    <form id="delete-receipt-form" action="{{ url_for('delete_receipt', id=expense[0]) }}" method="post">
+        <input type="hidden" name="delete_receipt" value="true">
     </form>
 </body>
 </html>

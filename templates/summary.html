@@ -69,7 +69,7 @@
                 {% endif %}
                 {% set current_year = entry[0] %}
             {% endif %}
-            <tr style="background-color: {{ get_pastel_color(entry[0] + '-01') }};">
+            <tr style="background-color: {{ get_pastel_color_by_year(entry[0]) }};">
                 <td>{{ entry[0] }}</td>
                 <td>{{ entry[1] }}</td>
                 <td>{{ entry[2] }}</td>
@@ -96,7 +96,7 @@
                 {% endif %}
                 {% set current_year = entry[1].split('-')[0] %}
             {% endif %}
-            <tr style="background-color: {{ get_pastel_color(entry[1]) }};">
+            <tr style="background-color: {{ get_pastel_color_by_month(entry[1]) }};">
                 <td>{{ entry[0] }}</td>
                 <td>{{ entry[1] }}</td>
                 <td>{{ entry[2] }}</td>

@@ -19,7 +19,8 @@ def init_db():
             amount REAL NOT NULL,
             merchant TEXT NOT NULL,
             description TEXT,
-            receipt BLOB
+            receipt BLOB,
+            receipt_filename TEXT
         )
     ''')
     conn.commit()
@@ -31,44 +32,18 @@ def initialize():
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
 
-def get_pastel_color(month):
-    if '-' not in month:
-        print(f"Invalid month format: {month}")
-        return '#FFFFFF'
-    
-    colors = {
-        '01': '#FFB3BA',  # January - Light Red
-        '02': '#FFDFBA',  # February - Light Orange
-        '03': '#FFFFBA',  # March - Light Yellow
-        '04': '#BAFFC9',  # April - Light Green
-        '05': '#BAE1FF',  # May - Light Blue
-        '06': '#E3BAFF',  # June - Light Purple
-        '07': '#FFB3FF',  # July - Light Pink
-        '08': '#FFC9E3',  # August - Light Magenta
-        '09': '#C9FFC9',  # September - Light Lime
-        '10': '#C9FFFF',  # October - Light Cyan
-        '11': '#E1FFC9',  # November - Light Mint
-        '12': '#FFF0BA'   # December - Light Beige
-    }
-    
-    month_part = month.split('-')[1]
-    color = colors.get(month_part, '#FFFFFF')
-    print(f"Month: {month}, Color: {color}")
-    return color
-
 @app.route('/')
 def index():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
     c.execute('''
-        SELECT id, user, date, amount, merchant, description, receipt
+        SELECT id, user, date, amount, merchant, description, receipt, receipt_filename
         FROM expenses
         ORDER BY date DESC
     ''')
     expenses = c.fetchall()
     conn.close()
-    return render_template('index.html', expenses=expenses, get_pastel_color=get_pastel_color)
-
+    return render_template('index.html', expenses=expenses, get_pastel_color=get_pastel_color_by_month)
 
 @app.route('/add', methods=['POST'])
 def add_expense():
@@ -78,21 +53,21 @@ def add_expense():
     merchant = request.form['merchant']
     description = request.form['description']
     receipt = request.files.get('receipt')
+    receipt_blob = None
+    receipt_filename = None
 
     if receipt:
-        filename = secure_filename(receipt.filename)
-        receipt.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb') as f:
+        receipt_filename = secure_filename(receipt.filename)
+        receipt.save(os.path.join(app.config['UPLOAD_FOLDER'], receipt_filename))
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], receipt_filename), 'rb') as f:
             receipt_blob = f.read()
-    else:
-        receipt_blob = None
 
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
     c.execute('''
-        INSERT INTO expenses (user, date, amount, merchant, description, receipt)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (user, date, amount, merchant, description, receipt_blob))
+        INSERT INTO expenses (user, date, amount, merchant, description, receipt, receipt_filename)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (user, date, amount, merchant, description, receipt_blob, receipt_filename))
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
@@ -101,7 +76,7 @@ def add_expense():
 def edit_expense(id):
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
-    c.execute('SELECT id, user, date, amount, merchant, description, receipt FROM expenses WHERE id = ?', (id,))
+    c.execute('SELECT id, user, date, amount, merchant, description, receipt, receipt_filename FROM expenses WHERE id = ?', (id,))
     expense = c.fetchone()
     conn.close()
     return render_template('edit.html', expense=expense)
@@ -119,15 +94,15 @@ def update_expense(id):
     c = conn.cursor()
     
     if receipt:
-        filename = secure_filename(receipt.filename)
-        receipt.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb') as f:
+        receipt_filename = secure_filename(receipt.filename)
+        receipt.save(os.path.join(app.config['UPLOAD_FOLDER'], receipt_filename))
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], receipt_filename), 'rb') as f:
             receipt_blob = f.read()
         c.execute('''
             UPDATE expenses
-            SET user = ?, date = ?, amount = ?, merchant = ?, description = ?, receipt = ?
+            SET user = ?, date = ?, amount = ?, merchant = ?, description = ?, receipt = ?, receipt_filename = ?
             WHERE id = ?
-        ''', (user, date, amount, merchant, description, receipt_blob, id))
+        ''', (user, date, amount, merchant, description, receipt_blob, receipt_filename, id))
     else:
         c.execute('''
             UPDATE expenses
@@ -155,54 +130,44 @@ def delete_expense(id):
         print(f"Error deleting record with id: {id}, error: {e}")
     return redirect(url_for('index'))
 
-
-@app.route('/add_receipt/<int:id>', methods=['POST'])
-def add_receipt(id):
-    receipt = request.files['receipt']
-    filename = secure_filename(receipt.filename)
-    receipt.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb') as f:
-        receipt_blob = f.read()
-
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute('''
-        UPDATE expenses
-        SET receipt = ?
-        WHERE id = ?
-    ''', (receipt_blob, id))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('index'))
-
 @app.route('/receipt/<int:id>')
 def get_receipt(id):
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
-    c.execute('SELECT receipt FROM expenses WHERE id = ?', (id,))
-    receipt_blob = c.fetchone()[0]
+    c.execute('SELECT receipt, receipt_filename FROM expenses WHERE id = ?', (id,))
+    row = c.fetchone()
+    receipt_blob, receipt_filename = row
     conn.close()
 
     if receipt_blob:
-        return send_file(
-            io.BytesIO(receipt_blob),
-            mimetype='image/jpeg',
-            as_attachment=False,
-            download_name='receipt.jpg'
-        )
+        if receipt_filename.endswith('.pdf'):
+            return send_file(
+                io.BytesIO(receipt_blob),
+                mimetype='application/pdf',
+                as_attachment=False,
+                download_name=receipt_filename
+            )
+        else:
+            return send_file(
+                io.BytesIO(receipt_blob),
+                mimetype='image/jpeg',
+                as_attachment=False,
+                download_name=receipt_filename
+            )
     return "No receipt found"
 
 @app.route('/receipt_thumbnail/<int:id>')
 def get_receipt_thumbnail(id):
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
-    c.execute('SELECT receipt FROM expenses WHERE id = ?', (id,))
-    receipt_blob = c.fetchone()[0]
+    c.execute('SELECT receipt, receipt_filename FROM expenses WHERE id = ?', (id,))
+    row = c.fetchone()
+    receipt_blob, receipt_filename = row
     conn.close()
 
-    if receipt_blob:
+    if receipt_blob and receipt_filename.endswith(('.jpg', '.jpeg', '.png')):
         image = Image.open(io.BytesIO(receipt_blob))
-        image.thumbnail((100, 100))
+        image.thumbnail((64, 64))
         thumbnail_io = io.BytesIO()
         image.save(thumbnail_io, format='JPEG')
         thumbnail_io.seek(0)
@@ -215,31 +180,40 @@ def get_receipt_thumbnail(id):
         )
     return "No thumbnail available"
 
-def get_merchant_expenses():
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute('''
-        SELECT merchant, strftime('%Y', date) as year, SUM(amount)
-        FROM expenses
-        GROUP BY merchant, year
-        ORDER BY year DESC, merchant ASC
-    ''')
-    merchant_expenses = c.fetchall()
-    conn.close()
-    return merchant_expenses
+def get_pastel_color_by_year(year):
+    try:
+        year = int(year)
+    except ValueError:
+        return '#FFFFFF'
+    if year % 2 == 0:
+        return '#FFDFBA'  # Light Orange for even years
+    else:
+        return '#BAFFC9'  # Light Green for odd years
 
-def get_merchant_expenses_by_year():
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute('''
-        SELECT strftime('%Y', date) as year, merchant, SUM(amount)
-        FROM expenses
-        GROUP BY year, merchant
-        ORDER BY year DESC, SUM(amount) DESC
-    ''')
-    merchant_expenses_by_year = c.fetchall()
-    conn.close()
-    return merchant_expenses_by_year
+def get_pastel_color_by_month(month):
+    if '-' not in month:
+        print(f"Invalid month format: {month}")
+        return '#FFFFFF'
+    
+    colors = {
+        '01': '#FFB3BA',  # January - Light Red
+        '02': '#FFDFBA',  # February - Light Orange
+        '03': '#FFFFBA',  # March - Light Yellow
+        '04': '#BAFFC9',  # April - Light Green
+        '05': '#BAE1FF',  # May - Light Blue
+        '06': '#E3BAFF',  # June - Light Purple
+        '07': '#FFB3FF',  # July - Light Pink
+        '08': '#FFC9E3',  # August - Light Magenta
+        '09': '#C9FFC9',  # September - Light Lime
+        '10': '#C9FFFF',  # October - Light Cyan
+        '11': '#E1FFC9',  # November - Light Mint
+        '12': '#FFF0BA'   # December - Light Beige
+    }
+    
+    month_part = month.split('-')[1]
+    color = colors.get(month_part, '#FFFFFF')
+    print(f"Month: {month}, Color: {color}")
+    return color
 
 @app.route('/summary')
 def summary():
@@ -255,7 +229,41 @@ def summary():
 
     merchant_expenses_by_year = get_merchant_expenses_by_year()
     conn.close()
-    return render_template('summary.html', summary=summary, merchant_expenses_by_year=merchant_expenses_by_year, get_pastel_color=get_pastel_color)
+    return render_template('summary.html', summary=summary, merchant_expenses_by_year=merchant_expenses_by_year, get_pastel_color_by_month=get_pastel_color_by_month, get_pastel_color_by_year=get_pastel_color_by_year)
+
+def get_merchant_expenses_by_year():
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    c.execute('''
+        SELECT strftime('%Y', date) as year, merchant, SUM(amount)
+        FROM expenses
+        GROUP BY year, merchant
+        ORDER BY year DESC, SUM(amount) DESC
+    ''')
+    merchant_expenses_by_year = c.fetchall()
+    conn.close()
+    return merchant_expenses_by_year
+
+# Rest of the code remains the same
+
+
+@app.route('/delete_receipt/<int:id>', methods=['POST'])
+def delete_receipt(id):
+    try:
+        conn = sqlite3.connect('expenses.db')
+        c = conn.cursor()
+        print(f"Attempting to delete receipt for record with id: {id}")
+        c.execute('''
+            UPDATE expenses
+            SET receipt = NULL, receipt_filename = NULL
+            WHERE id = ?
+        ''', (id,))
+        conn.commit()
+        conn.close()
+        print(f"Receipt for record with id: {id} deleted successfully")
+    except Exception as e:
+        print(f"Error deleting receipt for record with id: {id}, error: {e}")
+    return redirect(url_for('edit_expense', id=id))
 
 
 @app.route('/autocomplete', methods=['GET'])

@@ -71,8 +71,15 @@
         }
 
         .thumbnail {
-            width: 50px;
-            height: 50px;
+            width: 64px;
+            height: 64px;
+        }
+
+        .pdf-icon {
+            width: 64px;
+            height: 64px;
+            display: block;
+            margin: 0 auto;
         }
 
         /* Responsive styling */
@@ -118,7 +125,7 @@
             background-color: #f2f2f2;
         }
 
-        td img {
+        td img, .pdf-icon {
             display: block;
             margin: 0 auto;
         }
@@ -152,9 +159,9 @@
                 text-align: left;
             }
 
-            .thumbnail {
-                width: 100px;
-                height: 100px;
+            .thumbnail, .pdf-icon {
+                width: 64px;
+                height: 64px;
             }
         }
     </style>
@@ -178,7 +185,7 @@
             <textarea name="description" placeholder="Descrizione" rows="3"></textarea>
         </div>
         <div>
-            <input type="file" name="receipt" accept="image/*">
+            <input type="file" name="receipt" accept="image/*,application/pdf">
         </div>
         <button type="submit">Aggiungi</button>
     </form>
@@ -209,14 +216,15 @@
                 <td data-label="Descrizione">{{ expense[5] }}</td>
                 <td data-label="Ricevuta">
                     {% if expense[6] %}
-                    <a href="/receipt/{{ expense[0] }}" target="_blank">
-                        <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Ricevuta" class="thumbnail">
-                    </a>
-                    {% else %}
-                    <form action="/add_receipt/{{ expense[0] }}" method="post" enctype="multipart/form-data" style="display:inline;">
-                        <input type="file" name="receipt" accept="image/*" required>
-                        <button type="submit">Carica</button>
-                    </form>
+                        {% if expense[7] and expense[7].endswith('.pdf') %}
+                        <a href="/receipt/{{ expense[0] }}" target="_blank">
+                            <img src="/static/pdf_icon.png" alt="PDF" class="pdf-icon">
+                        </a>
+                        {% else %}
+                        <a href="/receipt/{{ expense[0] }}" target="_blank">
+                            <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Ricevuta" class="thumbnail">
+                        </a>
+                        {% endif %}
                     {% endif %}
                 </td>
                 <td data-label="Azioni">
