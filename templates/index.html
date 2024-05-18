@@ -4,72 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Spese</title>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/autocomplete')
-                .then(response => response.json())
-                .then(data => {
-                    const users = data.users;
-                    const merchants = data.merchants;
-
-                    const userInput = document.getElementById('user-input');
-                    const merchantInput = document.getElementById('merchant-input');
-
-                    userInput.addEventListener('input', function() {
-                        showSuggestions(this, users);
-                    });
-
-                    merchantInput.addEventListener('input', function() {
-                        showSuggestions(this, merchants);
-                    });
-                });
-
-            function showSuggestions(input, suggestions) {
-                const value = input.value.toLowerCase();
-                const list = document.createElement('ul');
-                list.classList.add('suggestions');
-
-                suggestions.forEach(suggestion => {
-                    if (suggestion.toLowerCase().startsWith(value)) {
-                        const item = document.createElement('li');
-                        item.textContent = suggestion;
-                        item.addEventListener('click', () => {
-                            input.value = suggestion;
-                            clearSuggestions(input);
-                        });
-                        list.appendChild(item);
-                    }
-                });
-
-                clearSuggestions(input);
-                input.parentNode.appendChild(list);
-            }
-
-            function clearSuggestions(input) {
-                const currentSuggestions = input.parentNode.querySelectorAll('.suggestions');
-                currentSuggestions.forEach(suggestion => suggestion.remove());
-            }
-        });
-    </script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
-        .suggestions {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            border: 1px solid #ccc;
-            max-height: 100px;
-            overflow-y: auto;
-        }
-
-        .suggestions li {
-            padding: 8px;
-            cursor: pointer;
-        }
-
-        .suggestions li:hover {
-            background-color: #ddd;
-        }
-
         .thumbnail {
             width: 64px;
             height: 64px;
@@ -78,161 +17,89 @@
         .pdf-icon {
             width: 64px;
             height: 64px;
-            display: block;
-            margin: 0 auto;
-        }
-
-        /* Responsive styling */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1, h2 {
-            text-align: center;
-        }
-
-        form {
-            max-width: 600px;
-            margin: 0 auto 20px auto;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background-color: #f9f9f9;
-        }
-
-        form div {
-            margin-bottom: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        td img, .pdf-icon {
-            display: block;
-            margin: 0 auto;
-        }
-
-        /* Responsive table */
-        @media (max-width: 600px) {
-            table, thead, tbody, th, td, tr {
-                display: block;
-            }
-
-            thead tr {
-                display: none;
-            }
-
-            tr {
-                margin-bottom: 10px;
-                border-bottom: 1px solid #ccc;
-            }
-
-            td {
-                padding: 10px;
-                text-align: right;
-                position: relative;
-            }
-
-            td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                font-weight: bold;
-                text-align: left;
-            }
-
-            .thumbnail, .pdf-icon {
-                width: 64px;
-                height: 64px;
-            }
         }
     </style>
 </head>
 <body>
-    <h1>Gestione Spese</h1>
-    <form action="/add" method="post" enctype="multipart/form-data">
-        <div>
-            <input type="text" id="user-input" name="user" placeholder="Utente" required>
-        </div>
-        <div>
-            <input type="date" name="date" required>
-        </div>
-        <div>
-            <input type="number" name="amount" step="0.01" placeholder="Importo" required>
-        </div>
-        <div>
-            <input type="text" id="merchant-input" name="merchant" placeholder="Esercente" required>
-        </div>
-        <div>
-            <textarea name="description" placeholder="Descrizione" rows="3"></textarea>
-        </div>
-        <div>
-            <input type="file" name="receipt" accept="image/*,application/pdf">
-        </div>
-        <button type="submit">Aggiungi</button>
-    </form>
+    <div class="container mt-4">
+        <h1 class="text-center">Gestione Spese</h1>
+        <form action="/add" method="post" enctype="multipart/form-data" class="mb-4">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <input type="text" id="user-input" name="user" class="form-control" placeholder="Utente" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <input type="date" name="date" class="form-control" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <input type="number" name="amount" step="0.01" class="form-control" placeholder="Importo" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <input type="text" id="merchant-input" name="merchant" class="form-control" placeholder="Esercente" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <textarea name="description" class="form-control" placeholder="Descrizione" rows="1"></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <input type="file" name="receipt" accept="image/*,application/pdf" class="form-control-file">
+                </div>
+                <div class="form-group col-md-6 text-right">
+                    <button type="submit" class="btn btn-primary">Aggiungi</button>
+                </div>
+            </div>
+        </form>
 
-    <br>
-    <a href="/summary">Riepilogo</a>
+        <div class="mb-4 text-right">
+            <a href="/summary" class="btn btn-secondary">Riepilogo</a>
+        </div>
 
-    <h2>Spese</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Utente</th>
-                <th>Data</th>
-                <th>Importo</th>
-                <th>Esercente</th>
-                <th>Descrizione</th>
-                <th>Ricevuta</th>
-                <th>Azioni</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for expense in expenses %}
-            <tr style="background-color: {{ get_pastel_color(expense[2]) }};">
-                <td data-label="Utente">{{ expense[1] }}</td>
-                <td data-label="Data">{{ expense[2] }}</td>
-                <td data-label="Importo">{{ expense[3] }}</td>
-                <td data-label="Esercente">{{ expense[4] }}</td>
-                <td data-label="Descrizione">{{ expense[5] }}</td>
-                <td data-label="Ricevuta">
-                    {% if expense[6] %}
-                        {% if expense[7] and expense[7].endswith('.pdf') %}
-                        <a href="/receipt/{{ expense[0] }}" target="_blank">
-                            <img src="/static/pdf_icon.png" alt="PDF" class="pdf-icon">
-                        </a>
-                        {% else %}
-                        <a href="/receipt/{{ expense[0] }}" target="_blank">
-                            <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Ricevuta" class="thumbnail">
-                        </a>
-                        {% endif %}
-                    {% endif %}
-                </td>
-                <td data-label="Azioni">
-                    <a href="{{ url_for('edit_expense', id=expense[0]) }}">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <h2 class="text-center">Spese</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Utente</th>
+                        <th>Data</th>
+                        <th>Importo</th>
+                        <th>Esercente</th>
+                        <th>Descrizione</th>
+                        <th>Ricevuta</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr style="background-color: {{ get_pastel_color(expense[2]) }};">
+                        <td>{{ expense[1] }}</td>
+                        <td>{{ expense[2] }}</td>
+                        <td>{{ expense[3] }}</td>
+                        <td>{{ expense[4] }}</td>
+                        <td>{{ expense[5] }}</td>
+                        <td>
+                            {% if expense[6] %}
+                                {% if expense[7] and expense[7].endswith('.pdf') %}
+                                <a href="/receipt/{{ expense[0] }}" target="_blank">
+                                    <img src="/static/pdf_icon.png" alt="PDF" class="pdf-icon">
+                                </a>
+                                {% else %}
+                                <a href="/receipt/{{ expense[0] }}" target="_blank">
+                                    <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Ricevuta" class="thumbnail">
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('edit_expense', id=expense[0]) }}" class="btn btn-primary btn-sm">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

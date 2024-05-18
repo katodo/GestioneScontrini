@@ -4,7 +4,7 @@ def migrate_db():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
 
-    # Verifica se la colonna "description" esiste già
+    # Verifica se le colonne esistono già
     c.execute("PRAGMA table_info(expenses)")
     columns = [column[1] for column in c.fetchall()]
     

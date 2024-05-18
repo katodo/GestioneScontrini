@@ -4,108 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riepilogo Spese</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1, h2 {
-            text-align: center;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
         .year-separator {
             background-color: #000;
             height: 2px;
         }
-
-        @media (max-width: 600px) {
-            table, th, td {
-                font-size: 14px;
-            }
-
-            th, td {
-                padding: 5px;
-            }
-        }
     </style>
 </head>
 <body>
-    <h1>Riepilogo Spese per Esercente e Anno</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Anno</th>
-                <th>Esercente</th>
-                <th>Totale Spese</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% set current_year = None %}
-            {% for entry in merchant_expenses_by_year %}
-            {% if current_year != entry[0] %}
-                {% if current_year is not none %}
-                <tr class="year-separator"><td colspan="3"></td></tr>
-                {% endif %}
-                {% set current_year = entry[0] %}
-            {% endif %}
-            <tr style="background-color: {{ get_pastel_color_by_year(entry[0]) }};">
-                <td>{{ entry[0] }}</td>
-                <td>{{ entry[1] }}</td>
-                <td>{{ entry[2] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="container mt-4">
+        <h1 class="text-center">Riepilogo Spese per Esercente e Anno</h1>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Anno</th>
+                        <th>Esercente</th>
+                        <th>Totale Spese</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set current_year = None %}
+                    {% for entry in merchant_expenses_by_year %}
+                    {% if current_year != entry[0] %}
+                        {% if current_year is not none %}
+                        <tr class="year-separator"><td colspan="3"></td></tr>
+                        {% endif %}
+                        {% set current_year = entry[0] %}
+                    {% endif %}
+                    <tr style="background-color: {{ get_pastel_color_by_year(entry[0]) }};">
+                        <td>{{ entry[0] }}</td>
+                        <td>{{ entry[1] }}</td>
+                        <td>{{ entry[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <h1>Riepilogo Spese per Utente e Mese</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Utente</th>
-                <th>Mese</th>
-                <th>Totale Spese</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% set current_year = None %}
-            {% for entry in summary %}
-            {% if current_year != entry[1].split('-')[0] %}
-                {% if current_year is not none %}
-                <tr class="year-separator"><td colspan="3"></td></tr>
-                {% endif %}
-                {% set current_year = entry[1].split('-')[0] %}
-            {% endif %}
-            <tr style="background-color: {{ get_pastel_color_by_month(entry[1]) }};">
-                <td>{{ entry[0] }}</td>
-                <td>{{ entry[1] }}</td>
-                <td>{{ entry[2] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <br>
-    <a href="/">Torna indietro</a>
+        <h1 class="text-center">Riepilogo Spese per Utente e Mese</h1>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Utente</th>
+                        <th>Mese</th>
+                        <th>Totale Spese</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set current_year = None %}
+                    {% for entry in summary %}
+                    {% if current_year != entry[1].split('-')[0] %}
+                        {% if current_year is not none %}
+                        <tr class="year-separator"><td colspan="3"></td></tr>
+                        {% endif %}
+                        {% set current_year = entry[1].split('-')[0] %}
+                    {% endif %}
+                    <tr style="background-color: {{ get_pastel_color_by_month(entry[1]) }};">
+                        <td>{{ entry[0] }}</td>
+                        <td>{{ entry[1] }}</td>
+                        <td>{{ entry[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <a href="/" class="btn btn-primary">Torna indietro</a>
+    </div>
 </body>
 </html>
