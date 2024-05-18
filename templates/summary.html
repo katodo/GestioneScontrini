@@ -11,7 +11,7 @@
             padding: 20px;
         }
 
-        h1 {
+        h1, h2 {
             text-align: center;
         }
 
@@ -51,6 +51,33 @@
     </style>
 </head>
 <body>
+    <h1>Riepilogo Spese per Esercente e Anno</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Anno</th>
+                <th>Esercente</th>
+                <th>Totale Spese</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set current_year = None %}
+            {% for entry in merchant_expenses_by_year %}
+            {% if current_year != entry[0] %}
+                {% if current_year is not none %}
+                <tr class="year-separator"><td colspan="3"></td></tr>
+                {% endif %}
+                {% set current_year = entry[0] %}
+            {% endif %}
+            <tr style="background-color: {{ get_pastel_color(entry[0] + '-01') }};">
+                <td>{{ entry[0] }}</td>
+                <td>{{ entry[1] }}</td>
+                <td>{{ entry[2] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
     <h1>Riepilogo Spese per Utente e Mese</h1>
     <table>
         <thead>
@@ -68,33 +95,6 @@
                 <tr class="year-separator"><td colspan="3"></td></tr>
                 {% endif %}
                 {% set current_year = entry[1].split('-')[0] %}
-            {% endif %}
-            <tr style="background-color: {{ get_pastel_color(entry[1]) }};">
-                <td>{{ entry[0] }}</td>
-                <td>{{ entry[1] }}</td>
-                <td>{{ entry[2] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <h1>Riepilogo Spese per Esercente e Anno</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Esercente</th>
-                <th>Anno</th>
-                <th>Totale Spese</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% set current_year = None %}
-            {% for entry in merchant_expenses %}
-            {% if current_year != entry[1] %}
-                {% if current_year is not none %}
-                <tr class="year-separator"><td colspan="3"></td></tr>
-                {% endif %}
-                {% set current_year = entry[1] %}
             {% endif %}
             <tr style="background-color: {{ get_pastel_color(entry[1]) }};">
                 <td>{{ entry[0] }}</td>

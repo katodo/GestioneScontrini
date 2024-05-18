@@ -228,6 +228,19 @@ def get_merchant_expenses():
     conn.close()
     return merchant_expenses
 
+def get_merchant_expenses_by_year():
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    c.execute('''
+        SELECT strftime('%Y', date) as year, merchant, SUM(amount)
+        FROM expenses
+        GROUP BY year, merchant
+        ORDER BY year DESC, SUM(amount) DESC
+    ''')
+    merchant_expenses_by_year = c.fetchall()
+    conn.close()
+    return merchant_expenses_by_year
+
 @app.route('/summary')
 def summary():
     conn = sqlite3.connect('expenses.db')
@@ -240,9 +253,9 @@ def summary():
     ''')
     summary = c.fetchall()
 
-    merchant_expenses = get_merchant_expenses()
+    merchant_expenses_by_year = get_merchant_expenses_by_year()
     conn.close()
-    return render_template('summary.html', summary=summary, merchant_expenses=merchant_expenses, get_pastel_color=get_pastel_color)
+    return render_template('summary.html', summary=summary, merchant_expenses_by_year=merchant_expenses_by_year, get_pastel_color=get_pastel_color)
 
 
 @app.route('/autocomplete', methods=['GET'])
