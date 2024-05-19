@@ -81,6 +81,28 @@ def edit_expense(id):
     conn.close()
     return render_template('edit.html', expense=expense)
 
+@app.route('/check_merchant', methods=['GET', 'POST'])
+def check_merchant():
+    if request.method == 'POST':
+        year = request.form['year']
+        merchant = request.form['merchant']
+        
+        conn = sqlite3.connect('expenses.db')
+        c = conn.cursor()
+        c.execute('''
+            SELECT user, date, amount, description, receipt, receipt_filename
+            FROM expenses
+            WHERE strftime('%Y', date) = ? AND merchant = ?
+            ORDER BY date DESC
+        ''', (year, merchant))
+        expenses = c.fetchall()
+        total_amount = sum([expense[2] for expense in expenses])
+        conn.close()
+        
+        return render_template('check_merchant.html', year=year, merchant=merchant, expenses=expenses, total_amount=total_amount)
+    else:
+        return render_template('check_merchant.html', year=None, merchant=None, expenses=None, total_amount=None)
+
 @app.route('/update/<int:id>', methods=['POST'])
 def update_expense(id):
     user = request.form['user']
