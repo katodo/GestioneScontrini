@@ -39,7 +39,7 @@
                     <tr style="background-color: {{ get_pastel_color_by_year(entry[0]) }};">
                         <td>{{ entry[0] }}</td>
                         <td>{{ entry[1] }}</td>
-                        <td>{{ entry[2] }}</td>
+                        <td>€{{ "%.2f" | format(entry[2]) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -68,7 +68,7 @@
                     <tr style="background-color: {{ get_pastel_color_by_month(entry[1]) }};">
                         <td>{{ entry[0] }}</td>
                         <td>{{ entry[1] }}</td>
-                        <td>{{ entry[2] }}</td>
+                        <td>€{{ "%.2f" | format(entry[2]) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

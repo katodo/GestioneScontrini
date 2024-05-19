@@ -83,12 +83,13 @@ def edit_expense(id):
 
 @app.route('/check_merchant', methods=['GET', 'POST'])
 def check_merchant():
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+
     if request.method == 'POST':
         year = request.form['year']
         merchant = request.form['merchant']
         
-        conn = sqlite3.connect('expenses.db')
-        c = conn.cursor()
         c.execute('''
             SELECT user, date, amount, description, receipt, receipt_filename
             FROM expenses
@@ -96,12 +97,24 @@ def check_merchant():
             ORDER BY date DESC
         ''', (year, merchant))
         expenses = c.fetchall()
-        total_amount = sum([expense[2] for expense in expenses])
+        total_amount = round(sum([expense[2] for expense in expenses]), 2)
+        
+        c.execute('SELECT DISTINCT strftime("%Y", date) as year FROM expenses ORDER BY year DESC')
+        years = [row[0] for row in c.fetchall()]
+        c.execute('SELECT DISTINCT merchant FROM expenses ORDER BY merchant')
+        merchants = [row[0] for row in c.fetchall()]
         conn.close()
         
-        return render_template('check_merchant.html', year=year, merchant=merchant, expenses=expenses, total_amount=total_amount)
+        return render_template('check_merchant.html', year=year, merchant=merchant, expenses=expenses, total_amount=total_amount, years=years, merchants=merchants)
     else:
-        return render_template('check_merchant.html', year=None, merchant=None, expenses=None, total_amount=None)
+        c.execute('SELECT DISTINCT strftime("%Y", date) as year FROM expenses ORDER BY year DESC')
+        years = [row[0] for row in c.fetchall()]
+        c.execute('SELECT DISTINCT merchant FROM expenses ORDER BY merchant')
+        merchants = [row[0] for row in c.fetchall()]
+        conn.close()
+        
+        return render_template('check_merchant.html', year=None, merchant=None, expenses=None, total_amount=None, years=years, merchants=merchants)
+
 
 @app.route('/update/<int:id>', methods=['POST'])
 def update_expense(id):
@@ -241,6 +254,8 @@ def get_pastel_color_by_month(month):
 def summary():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
+
+    # Recupero dei totali per utente e mese
     c.execute('''
         SELECT user, strftime('%Y-%m', date) as month, SUM(amount)
         FROM expenses
@@ -249,8 +264,14 @@ def summary():
     ''')
     summary = c.fetchall()
 
+    # Recupero dei totali per esercente e anno
     merchant_expenses_by_year = get_merchant_expenses_by_year()
     conn.close()
+
+    # Arrotondamento dei totali a due cifre decimali
+    summary = [(user, month, round(amount, 2)) for user, month, amount in summary]
+    merchant_expenses_by_year = [(year, merchant, round(amount, 2)) for year, merchant, amount in merchant_expenses_by_year]
+
     return render_template('summary.html', summary=summary, merchant_expenses_by_year=merchant_expenses_by_year, get_pastel_color_by_month=get_pastel_color_by_month, get_pastel_color_by_year=get_pastel_color_by_year)
 
 def get_merchant_expenses_by_year():
@@ -266,7 +287,6 @@ def get_merchant_expenses_by_year():
     conn.close()
     return merchant_expenses_by_year
 
-# Rest of the code remains the same
 
 
 @app.route('/delete_receipt/<int:id>', methods=['POST'])
