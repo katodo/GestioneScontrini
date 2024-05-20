@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ get_locale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riepilogo Spese</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>{{ _('Expense Summary') }}</title>
+    <link href="https://stackpath.amazonaws.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
         .year-separator {
             background-color: #000;
@@ -17,14 +17,25 @@
 </head>
 <body>
     <div class="container mt-4">
-        <h1 class="text-center">Riepilogo Spese per Esercente e Anno</h1>
+        <div class="d-flex justify-content-end">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="languageMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ _('Language') }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="languageMenu">
+                    <a class="dropdown-item" href="{{ url_for('set_language', language='en') }}">English</a>
+                    <a class="dropdown-item" href="{{ url_for('set_language', language='it') }}">Italiano</a>
+                </div>
+            </div>
+        </div>
+        <h1 class="text-center">{{ _('Expense Summary by Merchant and Year') }}</h1>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Anno</th>
-                        <th>Esercente</th>
-                        <th>Totale Spese</th>
+                        <th>{{ _('Year') }}</th>
+                        <th>{{ _('Merchant') }}</th>
+                        <th>{{ _('Total Expenses') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,14 +57,14 @@
             </table>
         </div>
 
-        <h1 class="text-center">Riepilogo Spese per Utente e Mese</h1>
+        <h1 class="text-center">{{ _('Expense Summary by User and Month') }}</h1>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Utente</th>
-                        <th>Mese</th>
-                        <th>Totale Spese</th>
+                        <th>{{ _('User') }}</th>
+                        <th>{{ _('Month') }}</th>
+                        <th>{{ _('Total Expenses') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,7 +86,7 @@
             </table>
         </div>
         <br>
-        <a href="/" class="btn btn-primary">Torna indietro</a>
+        <a href="/" class="btn btn-primary">{{ _('Go Back') }}</a>
     </div>
 </body>
 </html>

@@ -1,0 +1,78 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Expense Management"
+msgstr "Gestione Spese"
+
+msgid "User"
+msgstr "Utente"
+
+msgid "Date"
+msgstr "Data"
+
+msgid "Amount"
+msgstr "Importo"
+
+msgid "Merchant"
+msgstr "Esercente"
+
+msgid "Description"
+msgstr "Descrizione"
+
+msgid "Receipt"
+msgstr "Ricevuta"
+
+msgid "Actions"
+msgstr "Azioni"
+
+msgid "Add"
+msgstr "Aggiungi"
+
+msgid "Summary"
+msgstr "Riepilogo"
+
+msgid "Check Merchant"
+msgstr "Verifica Esercente"
+
+msgid "Select Year"
+msgstr "Seleziona Anno"
+
+msgid "Select Merchant"
+msgstr "Seleziona Esercente"
+
+msgid "Check"
+msgstr "Verifica"
+
+msgid "Results for"
+msgstr "Risultati per"
+
+msgid "in year"
+msgstr "nell'anno"
+
+msgid "Total Expenses"
+msgstr "Totale Spese"
+
+msgid "Go Back"
+msgstr "Torna indietro"
+
+msgid "Language"
+msgstr "Lingua"
+
+msgid "Edit"
+msgstr "Modifica"
+
+msgid "Update"
+msgstr "Aggiorna"
+
+msgid "Delete Record"
+msgstr "Elimina Record"
+
+msgid "Cancel"
+msgstr "Annulla"
+
+msgid "Delete Receipt"
+msgstr "Elimina Ricevuta"
+
+msgid "Are you sure you want to delete this receipt?"
+msgstr "Sei sicuro di voler eliminare questa ricevuta?"

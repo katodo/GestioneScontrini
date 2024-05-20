@@ -1,0 +1,78 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Expense Management"
+msgstr "Expense Management"
+
+msgid "User"
+msgstr "User"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Amount"
+msgstr "Amount"
+
+msgid "Merchant"
+msgstr "Merchant"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Receipt"
+msgstr "Receipt"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Add"
+msgstr "Add"
+
+msgid "Summary"
+msgstr "Summary"
+
+msgid "Check Merchant"
+msgstr "Check Merchant"
+
+msgid "Select Year"
+msgstr "Select Year"
+
+msgid "Select Merchant"
+msgstr "Select Merchant"
+
+msgid "Check"
+msgstr "Check"
+
+msgid "Results for"
+msgstr "Results for"
+
+msgid "in year"
+msgstr "in year"
+
+msgid "Total Expenses"
+msgstr "Total Expenses"
+
+msgid "Go Back"
+msgstr "Go Back"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Update"
+msgstr "Update"
+
+msgid "Delete Record"
+msgstr "Delete Record"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Delete Receipt"
+msgstr "Delete Receipt"
+
+msgid "Are you sure you want to delete this receipt?"
+msgstr "Are you sure you want to delete this receipt?"

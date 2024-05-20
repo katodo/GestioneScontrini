@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ get_locale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Spese</title>
+    <title>{{ _('Expense Management') }}</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
         .thumbnail {
             width: 64px;
@@ -22,25 +22,36 @@
 </head>
 <body>
     <div class="container mt-4">
-        <h1 class="text-center">Gestione Spese</h1>
+        <div class="d-flex justify-content-end">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="languageMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ _('Language') }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="languageMenu">
+                    <a class="dropdown-item" href="{{ url_for('set_language', language='en') }}">English</a>
+                    <a class="dropdown-item" href="{{ url_for('set_language', language='it') }}">Italiano</a>
+                </div>
+            </div>
+        </div>
+        <h1 class="text-center">{{ _('Expense Management') }}</h1>
         <form action="/add" method="post" enctype="multipart/form-data" class="mb-4">
             <div class="form-row">
                 <div class="form-group col-md-4">
-                    <input type="text" id="user-input" name="user" class="form-control" placeholder="Utente" required>
+                    <input type="text" id="user-input" name="user" class="form-control" placeholder="{{ _('User') }}" required>
                 </div>
                 <div class="form-group col-md-4">
                     <input type="date" name="date" class="form-control" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <input type="number" name="amount" step="0.01" class="form-control" placeholder="Importo" required>
+                    <input type="number" name="amount" step="0.01" class="form-control" placeholder="{{ _('Amount') }}" required>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col-md-6">
-                    <input type="text" id="merchant-input" name="merchant" class="form-control" placeholder="Esercente" required>
+                    <input type="text" id="merchant-input" name="merchant" class="form-control" placeholder="{{ _('Merchant') }}" required>
                 </div>
                 <div class="form-group col-md-6">
-                    <textarea name="description" class="form-control" placeholder="Descrizione" rows="1"></textarea>
+                    <textarea name="description" class="form-control" placeholder="{{ _('Description') }}" rows="1"></textarea>
                 </div>
             </div>
             <div class="form-row">
@@ -48,28 +59,28 @@
                     <input type="file" name="receipt" accept="image/*,application/pdf" class="form-control-file">
                 </div>
                 <div class="form-group col-md-6 text-right">
-                    <button type="submit" class="btn btn-primary">Aggiungi</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Add') }}</button>
                 </div>
             </div>
         </form>
 
         <div class="mb-4 text-right">
-            <a href="/summary" class="btn btn-secondary">Riepilogo</a>
-            <a href="/check_merchant" class="btn btn-secondary">Verifica Esercente</a>
+            <a href="/summary" class="btn btn-secondary">{{ _('Summary') }}</a>
+            <a href="/check_merchant" class="btn btn-secondary">{{ _('Check Merchant') }}</a>
         </div>
 
-        <h2 class="text-center">Spese</h2>
+        <h2 class="text-center">{{ _('Expenses') }}</h2>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Utente</th>
-                        <th>Data</th>
-                        <th>Importo</th>
-                        <th>Esercente</th>
-                        <th>Descrizione</th>
-                        <th>Ricevuta</th>
-                        <th>Azioni</th>
+                        <th>{{ _('User') }}</th>
+                        <th>{{ _('Date') }}</th>
+                        <th>{{ _('Amount') }}</th>
+                        <th>{{ _('Merchant') }}</th>
+                        <th>{{ _('Description') }}</th>
+                        <th>{{ _('Receipt') }}</th>
+                        <th>{{ _('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -88,13 +99,13 @@
                                 </a>
                                 {% else %}
                                 <a href="/receipt/{{ expense[0] }}" target="_blank">
-                                    <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Ricevuta" class="thumbnail">
+                                    <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Receipt" class="thumbnail">
                                 </a>
                                 {% endif %}
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{{ url_for('edit_expense', id=expense[0]) }}" class="btn btn-primary btn-sm">Edit</a>
+                            <a href="{{ url_for('edit_expense', id=expense[0]) }}" class="btn btn-primary btn-sm">{{ _('Edit') }}</a>
                         </td>
                     </tr>
                     {% endfor %}
