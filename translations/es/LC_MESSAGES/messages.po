@@ -3,79 +3,79 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
 msgid "Expense Management"
-msgstr "Gestione delle Spese"
+msgstr "Gestión de Gastos"
 
 msgid "Language"
-msgstr "Lingua"
+msgstr "Idioma"
 
 msgid "User"
-msgstr "Utente"
+msgstr "Usuario"
 
 msgid "Date"
-msgstr "Data"
+msgstr "Fecha"
 
 msgid "Amount"
-msgstr "Importo"
+msgstr "Monto"
 
 msgid "Merchant"
-msgstr "Esercente"
+msgstr "Comerciante"
 
 msgid "Description"
-msgstr "Descrizione"
+msgstr "Descripción"
 
 msgid "Receipt"
-msgstr "Ricevuta"
+msgstr "Recibo"
 
 msgid "Actions"
-msgstr "Azioni"
+msgstr "Acciones"
 
 msgid "Add"
-msgstr "Aggiungi"
+msgstr "Agregar"
 
 msgid "Summary"
-msgstr "Riepilogo"
+msgstr "Resumen"
 
 msgid "Check Merchant"
-msgstr "Verifica Esercente"
+msgstr "Verificar Comerciante"
 
 msgid "Edit"
-msgstr "Modifica"
+msgstr "Editar"
 
 msgid "Edit Expense"
-msgstr "Modifica Spesa"
+msgstr "Editar Gasto"
 
 msgid "Update"
-msgstr "Aggiorna"
+msgstr "Actualizar"
 
 msgid "Delete Record"
-msgstr "Elimina Record"
+msgstr "Eliminar Registro"
 
 msgid "Cancel"
-msgstr "Annulla"
+msgstr "Cancelar"
 
 msgid "Are you sure you want to delete this receipt?"
-msgstr "Sei sicuro di voler eliminare questa ricevuta?"
+msgstr "¿Está seguro de que desea eliminar este recibo?"
 
 msgid "Expense Summary by Merchant and Year"
-msgstr "Riepilogo Spese per Esercente e Anno"
+msgstr "Resumen de Gastos por Comerciante y Año"
 
 msgid "Year"
-msgstr "Anno"
+msgstr "Año"
 
 msgid "Total Expenses"
-msgstr "Spese Totali"
+msgstr "Gastos Totales"
 
 msgid "Expense Summary by User and Month"
-msgstr "Riepilogo Spese per Utente e Mese"
+msgstr "Resumen de Gastos por Usuario y Mes"
 
 msgid "Go Back"
-msgstr "Torna Indietro"
+msgstr "Regresar"
 
 msgid "Check"
-msgstr "Verifica"
+msgstr "Verificar"
 
 msgid "Results for"
-msgstr "Risultati per"
+msgstr "Resultados para"
 
 msgid "in year"
-msgstr "nell'anno"
+msgstr "en el año"

@@ -3,79 +3,79 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
 msgid "Expense Management"
-msgstr "Expense Management"
+msgstr "Gestion des Dépenses"
 
 msgid "Language"
-msgstr "Language"
+msgstr "Langue"
 
 msgid "User"
-msgstr "User"
+msgstr "Utilisateur"
 
 msgid "Date"
 msgstr "Date"
 
 msgid "Amount"
-msgstr "Amount"
+msgstr "Montant"
 
 msgid "Merchant"
-msgstr "Merchant"
+msgstr "Commerçant"
 
 msgid "Description"
 msgstr "Description"
 
 msgid "Receipt"
-msgstr "Receipt"
+msgstr "Reçu"
 
 msgid "Actions"
 msgstr "Actions"
 
 msgid "Add"
-msgstr "Add"
+msgstr "Ajouter"
 
 msgid "Summary"
-msgstr "Summary"
+msgstr "Résumé"
 
 msgid "Check Merchant"
-msgstr "Check Merchant"
+msgstr "Vérifier le Commerçant"
 
 msgid "Edit"
-msgstr "Edit"
+msgstr "Modifier"
 
 msgid "Edit Expense"
-msgstr "Edit Expense"
+msgstr "Modifier la Dépense"
 
 msgid "Update"
-msgstr "Update"
+msgstr "Mettre à jour"
 
 msgid "Delete Record"
-msgstr "Delete Record"
+msgstr "Supprimer l'Enregistrement"
 
 msgid "Cancel"
-msgstr "Cancel"
+msgstr "Annuler"
 
 msgid "Are you sure you want to delete this receipt?"
-msgstr "Are you sure you want to delete this receipt?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce reçu?"
 
 msgid "Expense Summary by Merchant and Year"
-msgstr "Expense Summary by Merchant and Year"
+msgstr "Résumé des Dépenses par Commerçant et Année"
 
 msgid "Year"
-msgstr "Year"
+msgstr "Année"
 
 msgid "Total Expenses"
-msgstr "Total Expenses"
+msgstr "Dépenses Totales"
 
 msgid "Expense Summary by User and Month"
-msgstr "Expense Summary by User and Month"
+msgstr "Résumé des Dépenses par Utilisateur et Mois"
 
 msgid "Go Back"
-msgstr "Go Back"
+msgstr "Retourner"
 
 msgid "Check"
-msgstr "Check"
+msgstr "Vérifier"
 
 msgid "Results for"
-msgstr "Results for"
+msgstr "Résultats pour"
 
 msgid "in year"
-msgstr "in year"
+msgstr "dans l'année"
