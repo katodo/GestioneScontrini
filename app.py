@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from flask_babel import Babel, _  # Aggiorna l'importazione
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
+from flask_babel import Babel, _
 import sqlite3
 from werkzeug.utils import secure_filename
 import os
@@ -12,7 +12,7 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
 
-babel = Babel()
+babel = Babel(app)
 
 def init_db():
     conn = sqlite3.connect('expenses.db')
@@ -20,7 +20,7 @@ def init_db():
     c.execute('''
         CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user TEXT NOT NULL,
+            familiare TEXT NOT NULL,
             date TEXT NOT NULL,
             amount REAL NOT NULL,
             merchant TEXT NOT NULL,
@@ -38,10 +38,9 @@ def initialize():
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
 
+@babel.localeselector
 def get_locale():
     return session.get('lang', 'en')
-
-babel.init_app(app, locale_selector=get_locale)
 
 @app.context_processor
 def inject_global_template_variables():
@@ -57,7 +56,7 @@ def index():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
     c.execute('''
-        SELECT id, user, date, amount, merchant, description, receipt, receipt_filename
+        SELECT id, familiare, date, amount, merchant, description, receipt, receipt_filename
         FROM expenses
         ORDER BY date DESC
     ''')
@@ -67,7 +66,7 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add_expense():
-    user = request.form['user']
+    familiare = request.form['familiare']
     date = request.form['date']
     amount = request.form['amount']
     merchant = request.form['merchant']
@@ -85,9 +84,9 @@ def add_expense():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
     c.execute('''
-        INSERT INTO expenses (user, date, amount, merchant, description, receipt, receipt_filename)
+        INSERT INTO expenses (familiare, date, amount, merchant, description, receipt, receipt_filename)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (user, date, amount, merchant, description, receipt_blob, receipt_filename))
+    ''', (familiare, date, amount, merchant, description, receipt_blob, receipt_filename))
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
@@ -96,14 +95,14 @@ def add_expense():
 def edit_expense(id):
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
-    c.execute('SELECT id, user, date, amount, merchant, description, receipt, receipt_filename FROM expenses WHERE id = ?', (id,))
+    c.execute('SELECT id, familiare, date, amount, merchant, description, receipt, receipt_filename FROM expenses WHERE id = ?', (id,))
     expense = c.fetchone()
     conn.close()
     return render_template('edit.html', expense=expense)
 
 @app.route('/update/<int:id>', methods=['POST'])
 def update_expense(id):
-    user = request.form['user']
+    familiare = request.form['familiare']
     date = request.form['date']
     amount = request.form['amount']
     merchant = request.form['merchant']
@@ -120,15 +119,15 @@ def update_expense(id):
             receipt_blob = f.read()
         c.execute('''
             UPDATE expenses
-            SET user = ?, date = ?, amount = ?, merchant = ?, description = ?, receipt = ?, receipt_filename = ?
+            SET familiare = ?, date = ?, amount = ?, merchant = ?, description = ?, receipt = ?, receipt_filename = ?
             WHERE id = ?
-        ''', (user, date, amount, merchant, description, receipt_blob, receipt_filename, id))
+        ''', (familiare, date, amount, merchant, description, receipt_blob, receipt_filename, id))
     else:
         c.execute('''
             UPDATE expenses
-            SET user = ?, date = ?, amount = ?, merchant = ?, description = ?
+            SET familiare = ?, date = ?, amount = ?, merchant = ?, description = ?
             WHERE id = ?
-        ''', (user, date, amount, merchant, description, id))
+        ''', (familiare, date, amount, merchant, description, id))
     
     conn.commit()
     conn.close()
@@ -148,11 +147,11 @@ def summary():
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
 
-    # Recupero dei totali per utente e mese
+    # Recupero dei totali per familiare e mese
     c.execute('''
-        SELECT user, strftime('%Y-%m', date) as month, SUM(amount)
+        SELECT familiare, strftime('%Y-%m', date) as month, SUM(amount)
         FROM expenses
-        GROUP BY user, month
+        GROUP BY familiare, month
         ORDER BY month DESC
     ''')
     summary = c.fetchall()
@@ -162,7 +161,7 @@ def summary():
     conn.close()
 
     # Arrotondamento dei totali a due cifre decimali
-    summary = [(user, month, round(amount, 2)) for user, month, amount in summary]
+    summary = [(familiare, month, round(amount, 2)) for familiare, month, amount in summary]
     merchant_expenses_by_year = [(year, merchant, round(amount, 2)) for year, merchant, amount in merchant_expenses_by_year]
 
     return render_template('summary.html', summary=summary, merchant_expenses_by_year=merchant_expenses_by_year, get_pastel_color_by_month=get_pastel_color_by_month, get_pastel_color_by_year=get_pastel_color_by_year)
@@ -190,7 +189,7 @@ def check_merchant():
         merchant = request.form['merchant']
         
         c.execute('''
-            SELECT user, date, amount, description, receipt, receipt_filename
+            SELECT familiare, date, amount, description, receipt, receipt_filename
             FROM expenses
             WHERE strftime('%Y', date) = ? AND merchant = ?
             ORDER BY date DESC

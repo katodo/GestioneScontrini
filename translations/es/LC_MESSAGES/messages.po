@@ -8,8 +8,8 @@ msgstr "Gestión de Gastos"
 msgid "Language"
 msgstr "Idioma"
 
-msgid "User"
-msgstr "Usuario"
+msgid "Familiare"
+msgstr "Familiar"
 
 msgid "Date"
 msgstr "Fecha"
@@ -66,7 +66,7 @@ msgid "Total Expenses"
 msgstr "Gastos Totales"
 
 msgid "Expense Summary by User and Month"
-msgstr "Resumen de Gastos por Usuario y Mes"
+msgstr "Resumen de Gastos por Familiar y Mes"
 
 msgid "Go Back"
 msgstr "Regresar"

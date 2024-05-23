@@ -7,7 +7,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
         .thumbnail {
             width: 64px;
@@ -68,7 +68,7 @@
         <form action="/add" method="post" enctype="multipart/form-data" class="mb-4">
             <div class="form-row">
                 <div class="form-group col-md-4">
-                    <input type="text" id="user-input" name="user" class="form-control" placeholder="{{ _('User') }}" required>
+                    <input type="text" id="familiare-input" name="familiare" class="form-control" placeholder="{{ _('Familiare') }}" required>
                 </div>
                 <div class="form-group col-md-4">
                     <input type="date" name="date" class="form-control" required>
@@ -105,7 +105,7 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>{{ _('User') }}</th>
+                        <th>{{ _('Familiare') }}</th>
                         <th>{{ _('Date') }}</th>
                         <th>{{ _('Amount') }}</th>
                         <th>{{ _('Merchant') }}</th>
