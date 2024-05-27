@@ -1,81 +1,122 @@
 msgid ""
 msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
-
-msgid "Expense Management"
-msgstr "Gestión de Gastos"
-
-msgid "Language"
-msgstr "Idioma"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-05-26 19:28+0200\n"
+"PO-Revision-Date: 2024-05-26 19:28+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.15.0\n"
 
 msgid "Familiare"
-msgstr "Familiar"
+msgstr "Familial"
 
-msgid "Date"
-msgstr "Fecha"
+msgid "Month"
+msgstr "Mois"
 
-msgid "Amount"
-msgstr "Monto"
-
-msgid "Merchant"
-msgstr "Comerciante"
-
-msgid "Description"
-msgstr "Descripción"
-
-msgid "Receipt"
-msgstr "Recibo"
-
-msgid "Actions"
-msgstr "Acciones"
-
-msgid "Add"
-msgstr "Agregar"
-
-msgid "Summary"
-msgstr "Resumen"
-
-msgid "Check Merchant"
-msgstr "Verificar Comerciante"
-
-msgid "Edit"
-msgstr "Editar"
-
-msgid "Edit Expense"
-msgstr "Editar Gasto"
-
-msgid "Update"
-msgstr "Actualizar"
-
-msgid "Delete Record"
-msgstr "Eliminar Registro"
-
-msgid "Cancel"
-msgstr "Cancelar"
-
-msgid "Are you sure you want to delete this receipt?"
-msgstr "¿Está seguro de que desea eliminar este recibo?"
-
-msgid "Expense Summary by Merchant and Year"
-msgstr "Resumen de Gastos por Comerciante y Año"
+msgid "Total Amount"
+msgstr "Montant Total"
 
 msgid "Year"
-msgstr "Año"
+msgstr "Année"
 
-msgid "Total Expenses"
-msgstr "Gastos Totales"
+msgid "Merchant"
+msgstr "Marchand"
 
-msgid "Expense Summary by User and Month"
-msgstr "Resumen de Gastos por Familiar y Mes"
+msgid "Amount"
+msgstr "Montant"
 
-msgid "Go Back"
-msgstr "Regresar"
+msgid "Date"
+msgstr "Date"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Receipt"
+msgstr "Reçu"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "Edit"
+msgstr "Modifier"
 
 msgid "Check"
-msgstr "Verificar"
+msgstr "Vérifier"
 
-msgid "Results for"
-msgstr "Resultados para"
+msgid "Close"
+msgstr "Fermer"
 
-msgid "in year"
-msgstr "en el año"
+msgid "Import"
+msgstr "Importer"
+
+msgid "Import Archive"
+msgstr "Importer Archive"
+
+msgid "Export Archive"
+msgstr "Exporter Archive"
+
+msgid "Summary"
+msgstr "Résumé"
+
+msgid "Generate PDF"
+msgstr "Générer PDF"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "Check Merchant"
+msgstr "Vérifier Marchand"
+
+msgid "Expenses"
+msgstr "Dépenses"
+
+msgid "Expenses for"
+msgstr "Dépenses pour"
+
+msgid "in"
+msgstr "en"
+
+msgid "Total Amount:"
+msgstr "Montant Total:"
+
+msgid "Select Archive file"
+msgstr "Sélectionner fichier archive"
+
+msgid "Expense Management"
+msgstr "Gestion des Dépenses"
+
+msgid "Add Expense"
+msgstr "Ajouter Dépense"
+
+msgid "Edit Expense"
+msgstr "Modifier Dépense"
+
+msgid "Delete Expense"
+msgstr "Supprimer Dépense"
+
+msgid "Are you sure you want to delete this expense?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette dépense?"
+
+msgid "Update"
+msgstr "Mettre à jour"
+
+msgid "Delete Record"
+msgstr "Supprimer Enregistrement"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Familiare and Month"
+msgstr "Familial et Mois"
+
+msgid "Summary by"
+msgstr "Résumé par"
+
+msgid "Merchant and Year"
+msgstr "Marchand et Année"

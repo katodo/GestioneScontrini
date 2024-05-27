@@ -3,17 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ _('Expense Summary') }}</title>
+    <title>{{ _('Summary') }}</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <style>
-        .year-separator {
-            background-color: #000;
-            height: 2px;
-        }
-    </style>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Imposta la lingua selezionata dal localStorage
@@ -21,6 +15,14 @@
             if (lang && lang !== "{{ get_locale() }}") {
                 setLanguage(lang);
             }
+
+            // Aggiungi eventi di click per i pulsanti di lingua
+            document.querySelectorAll('.language-selector').forEach(function(element) {
+                element.addEventListener('click', function() {
+                    var language = this.getAttribute('data-language');
+                    setLanguage(language);
+                });
+            });
         });
 
         function setLanguage(language) {
@@ -38,65 +40,70 @@
 </head>
 <body>
     <div class="container mt-4">
-        <h1 class="text-center">{{ _('Expense Summary by Merchant and Year') }}</h1>
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>{{ _('Year') }}</th>
-                        <th>{{ _('Merchant') }}</th>
-                        <th>{{ _('Total Expenses') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% set current_year = None %}
-                    {% for entry in merchant_expenses_by_year %}
-                    {% if current_year != entry[0] %}
-                        {% if current_year is not none %}
-                        <tr class="year-separator"><td colspan="3"></td></tr>
-                        {% endif %}
-                        {% set current_year = entry[0] %}
-                    {% endif %}
-                    <tr style="background-color: {{ get_pastel_color_by_year(entry[0]) }};">
-                        <td>{{ entry[0] }}</td>
-                        <td>{{ entry[1] }}</td>
-                        <td>€{{ "%.2f" | format(entry[2]) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="d-flex justify-content-end">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="languageMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ _('Language') }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="languageMenu">
+                    <a class="dropdown-item language-selector" data-language="en">English</a>
+                    <a class="dropdown-item language-selector" data-language="it">Italiano</a>
+                    <a class="dropdown-item language-selector" data-language="fr">Français</a>
+                    <a class="dropdown-item language-selector" data-language="es">Español</a>
+                </div>
+            </div>
         </div>
-
-        <h1 class="text-center">{{ _('Expense Summary by Familiare and Month') }}</h1>
+        <h1 class="text-center">{{ _('Summary') }}</h1>
+        
+        <h2>{{ _('Summary by Familiare and Month') }}</h2>
+        <div class="text-right mb-2">
+            <a href="{{ url_for('generate_pdf', table='summary') }}" class="btn btn-secondary">{{ _('Generate PDF') }}</a>
+        </div>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>{{ _('Familiare') }}</th>
                         <th>{{ _('Month') }}</th>
-                        <th>{{ _('Total Expenses') }}</th>
+                        <th>{{ _('Total Amount') }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% set current_year = None %}
-                    {% for entry in summary %}
-                    {% if current_year != entry[1].split('-')[0] %}
-                        {% if current_year is not none %}
-                        <tr class="year-separator"><td colspan="3"></td></tr>
-                        {% endif %}
-                        {% set current_year = entry[1].split('-')[0] %}
-                    {% endif %}
-                    <tr style="background-color: {{ get_pastel_color_by_month(entry[1]) }};">
-                        <td>{{ entry[0] }}</td>
-                        <td>{{ entry[1] }}</td>
-                        <td>€{{ "%.2f" | format(entry[2]) }}</td>
+                    {% for row in summary %}
+                    <tr style="background-color: {{ get_pastel_color_by_month(row[1]) }};">
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        <br>
-        <a href="/" class="btn btn-primary">{{ _('Go Back') }}</a>
+        
+        <h2>{{ _('Summary by Merchant and Year') }}</h2>
+        <div class="text-right mb-2">
+            <a href="{{ url_for('generate_pdf', table='merchant_expenses') }}" class="btn btn-secondary">{{ _('Generate PDF') }}</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ _('Year') }}</th>
+                        <th>{{ _('Merchant') }}</th>
+                        <th>{{ _('Total Amount') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in merchant_expenses_by_year %}
+                    <tr style="background-color: {{ get_pastel_color_by_year(row[0]) }};">
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>

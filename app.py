@@ -1,10 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_file
+import csv
+import zipfile
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from flask_babel import Babel, _
 import sqlite3
 from werkzeug.utils import secure_filename
 import os
 import io
 from PIL import Image
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, TableStyle
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -44,12 +52,50 @@ def get_locale():
 
 @app.context_processor
 def inject_global_template_variables():
-    return dict(get_locale=get_locale)
+    return dict(
+        get_locale=get_locale,
+        get_pastel_color_by_month=get_pastel_color_by_month,
+        get_pastel_color_by_year=get_pastel_color_by_year
+    )
 
 @app.route('/set_language/<language>')
 def set_language(language=None):
     session['lang'] = language
     return redirect(request.referrer)
+
+def get_pastel_color_by_month(date_str):
+    try:
+        month = date_str.split('-')[1]
+    except IndexError:
+        print(f"Invalid date format: {date_str}")
+        return "#FFFFFF"  # Default to white
+    
+    pastel_colors = {
+        '01': '#FFB3BA',  # January - Light Red
+        '02': '#FFDFBA',  # February - Light Orange
+        '03': '#FFFFBA',  # March - Light Yellow
+        '04': '#BAFFC9',  # April - Light Green
+        '05': '#BAE1FF',  # May - Light Blue
+        '06': '#E3BAFF',  # June - Light Purple
+        '07': '#FFB3FF',  # July - Light Pink
+        '08': '#FFC9E3',  # August - Light Magenta
+        '09': '#C9FFC9',  # September - Light Lime
+        '10': '#C9FFFF',  # October - Light Cyan
+        '11': '#E1FFC9',  # November - Light Mint
+        '12': '#FFF0BA'   # December - Light Beige
+    }
+    
+    return pastel_colors.get(month, "#FFFFFF")  # Default to white if month not found
+
+def get_pastel_color_by_year(year):
+    try:
+        year = int(year)
+    except ValueError:
+        return "#FFFFFF"
+    if year % 2 == 0:
+        return '#FFDFBA'  # Light Orange for even years
+    else:
+        return '#BAFFC9'  # Light Green for odd years
 
 @app.route('/')
 def index():
@@ -62,7 +108,7 @@ def index():
     ''')
     expenses = c.fetchall()
     conn.close()
-    return render_template('index.html', expenses=expenses, get_pastel_color=get_pastel_color_by_month)
+    return render_template('index.html', expenses=expenses)
 
 @app.route('/add', methods=['POST'])
 def add_expense():
@@ -164,7 +210,7 @@ def summary():
     summary = [(familiare, month, round(amount, 2)) for familiare, month, amount in summary]
     merchant_expenses_by_year = [(year, merchant, round(amount, 2)) for year, merchant, amount in merchant_expenses_by_year]
 
-    return render_template('summary.html', summary=summary, merchant_expenses_by_year=merchant_expenses_by_year, get_pastel_color_by_month=get_pastel_color_by_month, get_pastel_color_by_year=get_pastel_color_by_year)
+    return render_template('summary.html', summary=summary, merchant_expenses_by_year=merchant_expenses_by_year)
 
 def get_merchant_expenses_by_year():
     conn = sqlite3.connect('expenses.db')
@@ -178,6 +224,154 @@ def get_merchant_expenses_by_year():
     merchant_expenses_by_year = c.fetchall()
     conn.close()
     return merchant_expenses_by_year
+
+@app.route('/generate_pdf/<table>')
+def generate_pdf(table):
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    p.setFont("Helvetica", 10)
+
+    data = []
+    row_colors = []
+    
+    if table == 'summary':
+        c.execute('''
+            SELECT familiare, strftime('%Y-%m', date) as month, SUM(amount)
+            FROM expenses
+            GROUP BY familiare, month
+            ORDER BY month DESC
+        ''')
+        rows = c.fetchall()
+
+        data.append([_("Familiare"), _("Month"), _("Total Amount")])
+        
+        for row in rows:
+            data.append([row[0], row[1], round(row[2], 2)])
+            row_colors.append([get_pastel_color_by_month(row[1]), get_pastel_color_by_month(row[1]), get_pastel_color_by_month(row[1])])
+
+    elif table == 'merchant_expenses':
+        c.execute('''
+            SELECT strftime('%Y', date) as year, merchant, SUM(amount)
+            FROM expenses
+            GROUP BY year, merchant
+            ORDER BY year DESC, SUM(amount) DESC
+        ''')
+        rows = c.fetchall()
+
+        data.append([_("Year"), _("Merchant"), _("Total Amount")])
+        
+        for row in rows:
+            data.append([row[0], row[1], round(row[2], 2)])
+            row_colors.append([get_pastel_color_by_year(row[0]), get_pastel_color_by_year(row[0]), get_pastel_color_by_year(row[0])])
+
+    table = Table(data, colWidths=[6 * cm, 6 * cm, 6 * cm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('ROWHEIGHT', (0, 0), (-1, -1), 0.8 * cm)
+    ]))
+
+    for i, row_color in enumerate(row_colors, start=1):
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, i), (-1, i), row_color[0])
+        ]))
+
+    width, height = A4
+    table.wrapOn(p, width - 4 * cm, height - 4 * cm)
+    table.drawOn(p, 2 * cm, height - 1 * cm - len(data) * 0.8 * cm)
+
+    p.showPage()
+    p.save()
+    buffer.seek(0)
+    filename = f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    return send_file(buffer, as_attachment=True, attachment_filename=filename, mimetype='application/pdf')
+
+
+@app.route('/export_archive')
+def export_archive():
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    c.execute('SELECT id, familiare, date, amount, merchant, description, receipt_filename FROM expenses')
+    expenses = c.fetchall()
+    conn.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['ID', 'Familiare', 'Date', 'Amount', 'Merchant', 'Description', 'Receipt Filename'])
+    for row in expenses:
+        writer.writerow([f'|{str(item)}|' if isinstance(item, str) and idx != 6 else item for idx, item in enumerate(row)])
+
+    output.seek(0)
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        zip_file.writestr('expenses.csv', output.getvalue())
+        for expense in expenses:
+            if expense[6]:  # receipt_filename
+                with open(os.path.join(app.config['UPLOAD_FOLDER'], expense[6]), 'rb') as f:
+                    zip_file.writestr(expense[6], f.read())
+
+    zip_buffer.seek(0)
+    return send_file(zip_buffer, mimetype='application/zip', attachment_filename='expenses.zip', as_attachment=True)
+
+
+@app.route('/import_archive', methods=['POST'])
+def import_archive():
+    if 'csvFile' not in request.files:
+        flash(_('No file part'))
+        return redirect(url_for('index'))
+
+    file = request.files['csvFile']
+    if file.filename == '':
+        flash(_('No selected file'))
+        return redirect(url_for('index'))
+
+    if file and file.filename.endswith('.zip'):
+        zip_file = zipfile.ZipFile(file)
+        csv_file = zip_file.open('expenses.csv')
+        stream = io.StringIO(csv_file.read().decode("UTF8"), newline=None)
+        csv_input = csv.reader(stream)
+        next(csv_input)  # Skip the header row
+
+        conn = sqlite3.connect('expenses.db')
+        c = conn.cursor()
+        for row in csv_input:
+            familiare, date, amount, merchant, description, receipt_filename = row[1].strip('|'), row[2].strip('|'), float(row[3]), row[4].strip('|'), row[5].strip('|'), row[6]
+
+            # Verifica se il record esiste già
+            c.execute('''
+                SELECT COUNT(*)
+                FROM expenses
+                WHERE date = ? AND merchant = ? AND amount = ?
+            ''', (date, merchant, amount))
+            if c.fetchone()[0] == 0:  # Se non esiste
+                receipt_blob = None
+                if receipt_filename:
+                    with zip_file.open(receipt_filename) as f:
+                        receipt_blob = f.read()
+                    with open(os.path.join(app.config['UPLOAD_FOLDER'], receipt_filename), 'wb') as out_file:
+                        out_file.write(receipt_blob)
+
+                c.execute('''
+                    INSERT INTO expenses (familiare, date, amount, merchant, description, receipt, receipt_filename)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', (familiare, date, amount, merchant, description, receipt_blob, receipt_filename))
+        conn.commit()
+        conn.close()
+
+        flash(_('File successfully imported'))
+        return redirect(url_for('index'))
+
+    flash(_('Invalid file format'))
+    return redirect(url_for('index'))
 
 @app.route('/check_merchant', methods=['GET', 'POST'])
 def check_merchant():
@@ -213,81 +407,6 @@ def check_merchant():
         
         return render_template('check_merchant.html', year=None, merchant=None, expenses=None, total_amount=None, years=years, merchants=merchants)
 
-@app.route('/receipt/<int:id>')
-def get_receipt(id):
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute('SELECT receipt, receipt_filename FROM expenses WHERE id = ?', (id,))
-    receipt = c.fetchone()
-    conn.close()
-
-    if receipt is None:
-        return "Receipt not found", 404
-
-    receipt_data, receipt_filename = receipt
-    return send_file(io.BytesIO(receipt_data), attachment_filename=receipt_filename, as_attachment=True)
-
-@app.route('/receipt_thumbnail/<int:id>')
-def get_receipt_thumbnail(id):
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute('SELECT receipt FROM expenses WHERE id = ?', (id,))
-    receipt = c.fetchone()
-    conn.close()
-
-    if receipt is None or receipt[0] is None:
-        return "Thumbnail not available", 404
-
-    image = Image.open(io.BytesIO(receipt[0]))
-    image.thumbnail((64, 64))
-    img_io = io.BytesIO()
-    image.save(img_io, 'PNG')
-    img_io.seek(0)
-    return send_file(img_io, mimetype='image/png')
-
-@app.route('/delete_receipt/<int:id>', methods=['POST'])
-def delete_receipt(id):
-    conn = sqlite3.connect('expenses.db')
-    c = conn.cursor()
-    c.execute('UPDATE expenses SET receipt = NULL, receipt_filename = NULL WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('edit_expense', id=id))
-
-def get_pastel_color_by_year(year):
-    try:
-        year = int(year)
-    except ValueError:
-        return '#FFFFFF'
-    if year % 2 == 0:
-        return '#FFDFBA'  # Light Orange for even years
-    else:
-        return '#BAFFC9'  # Light Green for odd years
-
-def get_pastel_color_by_month(month):
-    if '-' not in month:
-        print(f"Invalid month format: {month}")
-        return '#FFFFFF'
-    
-    colors = {
-        '01': '#FFB3BA',  # January - Light Red
-        '02': '#FFDFBA',  # February - Light Orange
-        '03': '#FFFFBA',  # March - Light Yellow
-        '04': '#BAFFC9',  # April - Light Green
-        '05': '#BAE1FF',  # May - Light Blue
-        '06': '#E3BAFF',  # June - Light Purple
-        '07': '#FFB3FF',  # July - Light Pink
-        '08': '#FFC9E3',  # August - Light Magenta
-        '09': '#C9FFC9',  # September - Light Lime
-        '10': '#C9FFFF',  # October - Light Cyan
-        '11': '#E1FFC9',  # November - Light Mint
-        '12': '#FFF0BA'   # December - Light Beige
-    }
-    
-    month_part = month.split('-')[1]
-    color = colors.get(month_part, '#FFFFFF')
-    print(f"Month: {month}, Color: {color}")
-    return color
 
 if __name__ == '__main__':
     initialize()
