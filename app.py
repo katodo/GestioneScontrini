@@ -1,6 +1,6 @@
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, send_file, flash
 import csv
 import zipfile
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from flask_babel import Babel, _
 import sqlite3
 from werkzeug.utils import secure_filename
@@ -187,6 +187,10 @@ def delete_expense(id):
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
+
+@app.route('/receipt/<filename>')
+def get_receipt(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/summary')
 def summary():

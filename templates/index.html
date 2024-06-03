@@ -151,14 +151,14 @@
                         <td>{{ expense[4] }}</td>
                         <td>{{ expense[5] }}</td>
                         <td>
-                            {% if expense[6] %}
-                                {% if expense[7] and expense[7].endswith('.pdf') %}
-                                <a href="/receipt/{{ expense[0] }}" target="_blank">
+                            {% if expense[7] %}
+                                {% if expense[7].endswith('.pdf') %}
+                                <a href="{{ url_for('get_receipt', filename=expense[7]) }}" target="_blank">
                                     <img src="/static/pdf_icon.png" alt="PDF" class="pdf-icon">
                                 </a>
                                 {% else %}
-                                <a href="/receipt/{{ expense[0] }}" target="_blank">
-                                    <img src="/receipt_thumbnail/{{ expense[0] }}" alt="Receipt" class="thumbnail">
+                                <a href="{{ url_for('get_receipt', filename=expense[7]) }}" target="_blank">
+                                    <img src="{{ url_for('get_receipt', filename='thumbnail_' + expense[7]) }}" alt="Receipt" class="thumbnail">
                                 </a>
                                 {% endif %}
                             {% endif %}
