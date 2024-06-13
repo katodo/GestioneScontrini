@@ -8,6 +8,22 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .thumbnail {
+            width: 64px;
+            height: 64px;
+        }
+
+        .pdf-icon {
+            width: 64px;
+            height: 64px;
+        }
+
+        .total-row {
+            background-color: red;
+            color: white;
+        }
+    </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Imposta la lingua selezionata dal localStorage
@@ -69,13 +85,30 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% set current_month = None %}
+                    {% set month_total = 0 %}
                     {% for row in summary %}
-                    <tr style="background-color: {{ get_pastel_color_by_month(row[1]) }};">
-                        <td>{{ row[0] }}</td>
-                        <td>{{ row[1] }}</td>
-                        <td>{{ row[2] }}</td>
-                    </tr>
+                        {% if current_month and current_month != row[1] %}
+                            <tr class="total-row">
+                                <td colspan="2"><strong>{{ _('Family total of ') }}{{ current_month }}</strong></td>
+                                <td><strong>{{ '%.2f' | format(month_total) }}</strong></td>
+                            </tr>
+                            {% set month_total = 0 %}
+                        {% endif %}
+                        {% set current_month = row[1] %}
+                        {% set month_total = month_total + row[2] %}
+                        <tr style="background-color: {{ get_pastel_color_by_month(row[1]) }};">
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ '%.2f' | format(row[2]) }}</td>
+                        </tr>
                     {% endfor %}
+                    {% if current_month %}
+                        <tr class="total-row">
+                            <td colspan="2"><strong>{{ _('Family total of ') }}{{ current_month }}</strong></td>
+                            <td><strong>{{ '%.2f' | format(month_total) }}</strong></td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -98,7 +131,7 @@
                     <tr style="background-color: {{ get_pastel_color_by_year(row[0]) }};">
                         <td>{{ row[0] }}</td>
                         <td>{{ row[1] }}</td>
-                        <td>{{ row[2] }}</td>
+                        <td>{{ '%.2f' | format(row[2]) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

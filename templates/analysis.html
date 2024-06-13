@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Analysis') }}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-end mb-4">
+            <a href="/" class="btn btn-secondary">{{ _('Home') }}</a> <!-- Pulsante per tornare alla home -->
+        </div>
+        <h1 class="text-center">{{ _('Analysis') }}</h1>
+        
+        <form method="POST" class="mb-4">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="familiare">{{ _('Familiare') }}</label>
+                    <select name="familiare" id="familiare" class="form-control">
+                        <option value="">{{ _('All') }}</option>
+                        {% for familiare in familiari %}
+                            <option value="{{ familiare }}" {% if request.form.get('familiare') == familiare %}selected{% endif %}>{{ familiare }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="merchant">{{ _('Merchant') }}</label>
+                    <select name="merchant" id="merchant" class="form-control">
+                        <option value="">{{ _('All') }}</option>
+                        {% for merchant in merchants %}
+                            <option value="{{ merchant }}" {% if request.form.get('merchant') == merchant %}selected{% endif %}>{{ merchant }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="date_filter">{{ _('Date Filter') }}</label>
+                    <select name="date_filter" id="date_filter" class="form-control">
+                        <option value="">{{ _('None') }}</option>
+                        <option value="current_year" {% if request.form.get('date_filter') == 'current_year' %}selected{% endif %}>{{ _('Current Year') }}</option>
+                        <option value="before_date" {% if request.form.get('date_filter') == 'before_date' %}selected{% endif %}>{{ _('Before Date') }}</option>
+                        <option value="after_date" {% if request.form.get('date_filter') == 'after_date' %}selected{% endif %}>{{ _('After Date') }}</option>
+                        <option value="exact_date" {% if request.form.get('date_filter') == 'exact_date' %}selected{% endif %}>{{ _('Exact Date') }}</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="date_value">{{ _('Date') }}</label>
+                    <input type="date" name="date_value" id="date_value" class="form-control" value="{{ request.form.get('date_value') }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="amount_filter">{{ _('Amount Filter') }}</label>
+                    <select name="amount_filter" id="amount_filter" class="form-control">
+                        <option value="">{{ _('None') }}</option>
+                        <option value="greater_than" {% if request.form.get('amount_filter') == 'greater_than' %}selected{% endif %}>{{ _('Greater Than') }}</option>
+                        <option value="less_than" {% if request.form.get('amount_filter') == 'less_than' %}selected{% endif %}>{{ _('Less Than') }}</option>
+                        <option value="between" {% if request.form.get('amount_filter') == 'between' %}selected{% endif %}>{{ _('Between') }}</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="amount_min">{{ _('Min Amount') }}</label>
+                    <input type="number" step="0.01" name="amount_min" id="amount_min" class="form-control" value="{{ request.form.get('amount_min') }}">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="amount_max">{{ _('Max Amount') }}</label>
+                    <input type="number" step="0.01" name="amount_max" id="amount_max" class="form-control" value="{{ request.form.get('amount_max') }}">
+                </div>
+                <div class="form-group col-md-3 align-self-end">
+                    <button type="submit" class="btn btn-primary">{{ _('Filter') }}</button>
+                    <a href="{{ url_for('analysis.analysis') }}" class="btn btn-secondary">{{ _('Reset') }}</a> <!-- Pulsante Reset -->
+                </div>
+            </div>
+        </form>
+
+        <form action="{{ url_for('analysis.generate_pdf') }}" method="post">
+            <input type="hidden" name="familiare" value="{{ request.form.get('familiare') }}">
+            <input type="hidden" name="merchant" value="{{ request.form.get('merchant') }}">
+            <input type="hidden" name="date_filter" value="{{ request.form.get('date_filter') }}">
+            <input type="hidden" name="date_value" value="{{ request.form.get('date_value') }}">
+            <input type="hidden" name="amount_filter" value="{{ request.form.get('amount_filter') }}">
+            <input type="hidden" name="amount_min" value="{{ request.form.get('amount_min') }}">
+            <input type="hidden" name="amount_max" value="{{ request.form.get('amount_max') }}">
+            <button type="submit" class="btn btn-secondary mb-4">{{ _('Generate PDF') }}</button>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ _('Familiare') }}</th>
+                        <th>{{ _('Date') }}</th>
+                        <th>{{ _('Amount') }}</th>
+                        <th>{{ _('Merchant') }}</th>
+                        <th>{{ _('Description') }}</th>
+                        <th>{{ _('Receipt') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense.familiare }}</td>
+                        <td>{{ expense.date }}</td>
+                        <td>{{ expense.amount }}</td>
+                        <td>{{ expense.merchant }}</td>
+                        <td>{{ expense.description }}</td>
+                        <td>
+                            {% if expense.receipt_filename %}
+                                <a href="{{ url_for('get_receipt', filename=expense.receipt_filename) }}" target="_blank">{{ _('View') }}</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="table-secondary">
+                        <td colspan="2"><strong>{{ _('Total') }}</strong></td>
+                        <td colspan="4"><strong>{{ total_amount }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

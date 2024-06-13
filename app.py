@@ -1,6 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, send_file, flash
-import csv
-import zipfile
 from flask_babel import Babel, _
 import sqlite3
 from werkzeug.utils import secure_filename
@@ -13,12 +11,21 @@ from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
 from datetime import datetime
+import csv
+import zipfile
+from analysis import analysis_bp
+
+# Importa il blueprint analysis
+from analysis import analysis_bp
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
+
+# Register blueprint
+app.register_blueprint(analysis_bp)
 
 babel = Babel(app)
 
@@ -299,7 +306,6 @@ def generate_pdf(table):
     filename = f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     return send_file(buffer, as_attachment=True, attachment_filename=filename, mimetype='application/pdf')
 
-
 @app.route('/export_archive')
 def export_archive():
     conn = sqlite3.connect('expenses.db')
@@ -411,7 +417,7 @@ def check_merchant():
         
         return render_template('check_merchant.html', year=None, merchant=None, expenses=None, total_amount=None, years=years, merchants=merchants)
 
-
 if __name__ == '__main__':
     initialize()
+    app.register_blueprint(analysis_bp)
     app.run(debug=True, host='0.0.0.0', port=5005)
