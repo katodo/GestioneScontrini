@@ -34,39 +34,33 @@ def analysis():
     params = [str(datetime.now().year)]
 
     if request.method == 'POST':
-        familiare = request.form.get('familiare')
-        merchant = request.form.get('merchant')
+        familiari_selected = request.form.getlist('familiare')
+        merchants_selected = request.form.getlist('merchant')
         date_filter = request.form.get('date_filter')
+        date_start = request.form.get('date_start')
+        date_end = request.form.get('date_end')
         amount_filter = request.form.get('amount_filter')
         amount_value = request.form.get('amount_value')
 
         query = "SELECT * FROM expenses WHERE 1=1"
         params = []
 
-        if familiare:
-            query += " AND familiare = ?"
-            params.append(familiare)
+        if familiari_selected:
+            query += " AND familiare IN ({})".format(','.join('?' for _ in familiari_selected))
+            params.extend(familiari_selected)
 
-        if merchant:
-            query += " AND merchant = ?"
-            params.append(merchant)
+        if merchants_selected:
+            query += " AND merchant IN ({})".format(','.join('?' for _ in merchants_selected))
+            params.extend(merchants_selected)
 
         if date_filter:
-            if date_filter == 'current_year':
-                query += " AND strftime('%Y', date) = ?"
-                params.append(str(datetime.now().year))
-            elif date_filter == 'before_date':
-                date_value = request.form.get('date_value')
-                query += " AND date < ?"
-                params.append(date_value)
-            elif date_filter == 'after_date':
-                date_value = request.form.get('date_value')
-                query += " AND date > ?"
-                params.append(date_value)
-            elif date_filter == 'exact_date':
-                date_value = request.form.get('date_value')
+            if date_filter == 'exact_month':
                 query += " AND strftime('%Y-%m', date) = ?"
-                params.append(date_value)
+                params.append(date_start)
+            elif date_filter == 'date_range':
+                query += " AND date BETWEEN ? AND ?"
+                params.append(date_start)
+                params.append(date_end)
 
         if amount_filter and amount_value:
             if amount_filter == 'greater_than':
@@ -75,12 +69,6 @@ def analysis():
             elif amount_filter == 'less_than':
                 query += " AND amount < ?"
                 params.append(amount_value)
-            elif amount_filter == 'between':
-                amount_min = request.form.get('amount_min')
-                amount_max = request.form.get('amount_max')
-                query += " AND amount BETWEEN ? AND ?"
-                params.append(amount_min)
-                params.append(amount_max)
 
     expenses = conn.execute(query, params).fetchall()
     conn.close()
@@ -97,54 +85,41 @@ def generate_pdf():
     query = "SELECT * FROM expenses WHERE strftime('%Y', date) = ?"
     params = [str(datetime.now().year)]
 
-    familiare = request.form.get('familiare')
-    merchant = request.form.get('merchant')
+    familiari_selected = request.form.getlist('familiare')
+    merchants_selected = request.form.getlist('merchant')
     date_filter = request.form.get('date_filter')
+    date_start = request.form.get('date_start')
+    date_end = request.form.get('date_end')
     amount_filter = request.form.get('amount_filter')
     amount_value = request.form.get('amount_value')
 
-    if request.method == 'POST':
-        query = "SELECT * FROM expenses WHERE 1=1"
-        params = []
+    query = "SELECT * FROM expenses WHERE 1=1"
+    params = []
 
-        if familiare:
-            query += " AND familiare = ?"
-            params.append(familiare)
+    if familiari_selected:
+        query += " AND familiare IN ({})".format(','.join('?' for _ in familiari_selected))
+        params.extend(familiari_selected)
 
-        if merchant:
-            query += " AND merchant = ?"
-            params.append(merchant)
+    if merchants_selected:
+        query += " AND merchant IN ({})".format(','.join('?' for _ in merchants_selected))
+        params.extend(merchants_selected)
 
-        if date_filter:
-            if date_filter == 'current_year':
-                query += " AND strftime('%Y', date) = ?"
-                params.append(str(datetime.now().year))
-            elif date_filter == 'before_date':
-                date_value = request.form.get('date_value')
-                query += " AND date < ?"
-                params.append(date_value)
-            elif date_filter == 'after_date':
-                date_value = request.form.get('date_value')
-                query += " AND date > ?"
-                params.append(date_value)
-            elif date_filter == 'exact_date':
-                date_value = request.form.get('date_value')
-                query += " AND strftime('%Y-%m', date) = ?"
-                params.append(date_value)
+    if date_filter:
+        if date_filter == 'exact_month':
+            query += " AND strftime('%Y-%m', date) = ?"
+            params.append(date_start)
+        elif date_filter == 'date_range':
+            query += " AND date BETWEEN ? AND ?"
+            params.append(date_start)
+            params.append(date_end)
 
-        if amount_filter and amount_value:
-            if amount_filter == 'greater_than':
-                query += " AND amount > ?"
-                params.append(amount_value)
-            elif amount_filter == 'less_than':
-                query += " AND amount < ?"
-                params.append(amount_value)
-            elif amount_filter == 'between':
-                amount_min = request.form.get('amount_min')
-                amount_max = request.form.get('amount_max')
-                query += " AND amount BETWEEN ? AND ?"
-                params.append(amount_min)
-                params.append(amount_max)
+    if amount_filter and amount_value:
+        if amount_filter == 'greater_than':
+            query += " AND amount > ?"
+            params.append(amount_value)
+        elif amount_filter == 'less_than':
+            query += " AND amount < ?"
+            params.append(amount_value)
 
     expenses = conn.execute(query, params).fetchall()
     conn.close()
