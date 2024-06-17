@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 import io
@@ -38,8 +38,7 @@ def analysis():
         merchant = request.form.get('merchant')
         date_filter = request.form.get('date_filter')
         amount_filter = request.form.get('amount_filter')
-        amount_min = request.form.get('amount_min')
-        amount_max = request.form.get('amount_max')
+        amount_value = request.form.get('amount_value')
 
         query = "SELECT * FROM expenses WHERE 1=1"
         params = []
@@ -69,14 +68,16 @@ def analysis():
                 query += " AND strftime('%Y-%m', date) = ?"
                 params.append(date_value)
 
-        if amount_filter:
+        if amount_filter and amount_value:
             if amount_filter == 'greater_than':
                 query += " AND amount > ?"
-                params.append(amount_min)
+                params.append(amount_value)
             elif amount_filter == 'less_than':
                 query += " AND amount < ?"
-                params.append(amount_max)
+                params.append(amount_value)
             elif amount_filter == 'between':
+                amount_min = request.form.get('amount_min')
+                amount_max = request.form.get('amount_max')
                 query += " AND amount BETWEEN ? AND ?"
                 params.append(amount_min)
                 params.append(amount_max)
@@ -100,8 +101,7 @@ def generate_pdf():
     merchant = request.form.get('merchant')
     date_filter = request.form.get('date_filter')
     amount_filter = request.form.get('amount_filter')
-    amount_min = request.form.get('amount_min')
-    amount_max = request.form.get('amount_max')
+    amount_value = request.form.get('amount_value')
 
     if request.method == 'POST':
         query = "SELECT * FROM expenses WHERE 1=1"
@@ -132,14 +132,16 @@ def generate_pdf():
                 query += " AND strftime('%Y-%m', date) = ?"
                 params.append(date_value)
 
-        if amount_filter:
+        if amount_filter and amount_value:
             if amount_filter == 'greater_than':
                 query += " AND amount > ?"
-                params.append(amount_min)
+                params.append(amount_value)
             elif amount_filter == 'less_than':
                 query += " AND amount < ?"
-                params.append(amount_max)
+                params.append(amount_value)
             elif amount_filter == 'between':
+                amount_min = request.form.get('amount_min')
+                amount_max = request.form.get('amount_max')
                 query += " AND amount BETWEEN ? AND ?"
                 params.append(amount_min)
                 params.append(amount_max)
@@ -151,12 +153,19 @@ def generate_pdf():
     doc = SimpleDocTemplate(buffer, pagesize=A4)
     elements = []
     styles = getSampleStyleSheet()
+    styleN = styles["BodyText"]
 
     data = [[_("Familiare"), _("Date"), _("Amount"), _("Merchant"), _("Description")]]
     for expense in expenses:
-        data.append([expense['familiare'], expense['date'], f"{expense['amount']:.2f}", expense['merchant'], expense['description']])
+        data.append([
+            expense['familiare'],
+            expense['date'],
+            f"{expense['amount']:.2f}",
+            expense['merchant'],
+            Paragraph(expense['description'], styleN)
+        ])
 
-    table = Table(data, colWidths=[4 * cm, 3 * cm, 3 * cm, 4 * cm, 4 * cm])
+    table = Table(data, colWidths=[4 * cm, 2.5 * cm, 2.5 * cm, 4 * cm, 8 * cm])
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -165,7 +174,7 @@ def generate_pdf():
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
-        ('ROWHEIGHT', (0, 0), (-1, -1), 0.8 * cm)
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
 
     elements.append(table)
