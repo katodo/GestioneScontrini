@@ -417,6 +417,25 @@ def check_merchant():
         
         return render_template('check_merchant.html', year=None, merchant=None, expenses=None, total_amount=None, years=years, merchants=merchants)
 
+@app.route('/get_familiari')
+def get_familiari():
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    c.execute('SELECT DISTINCT familiare FROM expenses')
+    familiari = [row[0] for row in c.fetchall()]
+    conn.close()
+    return {'familiari': familiari}
+
+@app.route('/get_merchants')
+def get_merchants():
+    conn = sqlite3.connect('expenses.db')
+    c = conn.cursor()
+    c.execute('SELECT DISTINCT merchant FROM expenses')
+    merchants = [row[0] for row in c.fetchall()]
+    conn.close()
+    return {'merchants': merchants}
+
+
 if __name__ == '__main__':
     initialize()
     app.register_blueprint(analysis_bp)

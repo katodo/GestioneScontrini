@@ -34,6 +34,29 @@
                     setLanguage(language);
                 });
             });
+
+            // Carica i valori per i campi "Familiare" e "Merchant"
+            fetch('/get_familiari')
+                .then(response => response.json())
+                .then(data => {
+                    var familiareList = document.getElementById('familiari-list');
+                    data.familiari.forEach(familiare => {
+                        var option = document.createElement('option');
+                        option.value = familiare;
+                        familiareList.appendChild(option);
+                    });
+                });
+
+            fetch('/get_merchants')
+                .then(response => response.json())
+                .then(data => {
+                    var merchantList = document.getElementById('merchants-list');
+                    data.merchants.forEach(merchant => {
+                        var option = document.createElement('option');
+                        option.value = merchant;
+                        merchantList.appendChild(option);
+                    });
+                });
         });
 
         function setLanguage(language) {
@@ -68,7 +91,8 @@
         <form action="/add" method="post" enctype="multipart/form-data" class="mb-4">
             <div class="form-row">
                 <div class="form-group col-md-4">
-                    <input type="text" id="familiare-input" name="familiare" class="form-control" placeholder="{{ _('Familiare') }}" required>
+                    <input list="familiari-list" id="familiare-input" name="familiare" class="form-control" placeholder="{{ _('Familiare') }}" required>
+                    <datalist id="familiari-list"></datalist>
                 </div>
                 <div class="form-group col-md-4">
                     <input type="date" name="date" class="form-control" required>
@@ -79,7 +103,8 @@
             </div>
             <div class="form-row">
                 <div class="form-group col-md-6">
-                    <input type="text" id="merchant-input" name="merchant" class="form-control" placeholder="{{ _('Merchant') }}" required>
+                    <input list="merchants-list" id="merchant-input" name="merchant" class="form-control" placeholder="{{ _('Merchant') }}" required>
+                    <datalist id="merchants-list"></datalist>
                 </div>
                 <div class="form-group col-md-6">
                     <textarea name="description" class="form-control" placeholder="{{ _('Description') }}" rows="1"></textarea>
