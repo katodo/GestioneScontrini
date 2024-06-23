@@ -18,17 +18,16 @@ Prima di iniziare, assicurati di avere installato i seguenti software:
     cd GestioneScontrini
     ```
 
-2. Crea un ambiente virtuale (opzionale ma consigliato):
+2. installa se non già fatto python Venv
 
     ```bash
-    python -m venv venv
-    source venv/bin/activate  # Su Windows usa `venv\Scripts\activate`
+    sudo apt install python3.11-venv
     ```
 
 3. Installa le dipendenze:
 
     ```bash
-    pip install -r requirements.txt
+    ./install_dependency.sh
     ```
 
 ## Avvio dell'applicazione

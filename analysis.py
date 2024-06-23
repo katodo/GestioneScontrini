@@ -30,15 +30,18 @@ def analysis():
     cur.execute("SELECT DISTINCT strftime('%Y', date) as year FROM expenses ORDER BY year DESC")
     years = [row['year'] for row in cur.fetchall()]
 
+    months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+
     query = "SELECT * FROM expenses WHERE strftime('%Y', date) = ?"
     params = [str(datetime.now().year)]
 
     if request.method == 'POST':
         familiari_selected = request.form.getlist('familiare')
         merchants_selected = request.form.getlist('merchant')
-        date_filter = request.form.get('date_filter')
         date_start = request.form.get('date_start')
         date_end = request.form.get('date_end')
+        years_selected = request.form.getlist('years')
+        months_selected = request.form.getlist('months')
         amount_filter = request.form.get('amount_filter')
         amount_value = request.form.get('amount_value')
 
@@ -53,14 +56,24 @@ def analysis():
             query += " AND merchant IN ({})".format(','.join('?' for _ in merchants_selected))
             params.extend(merchants_selected)
 
-        if date_filter:
-            if date_filter == 'exact_month':
-                query += " AND strftime('%Y-%m', date) = ?"
-                params.append(date_start)
-            elif date_filter == 'date_range':
-                query += " AND date BETWEEN ? AND ?"
-                params.append(date_start)
-                params.append(date_end)
+        if date_start and date_end:
+            query += " AND date BETWEEN ? AND ?"
+            params.append(date_start)
+            params.append(date_end)
+        elif date_end:
+            query += " AND date <= ?"
+            params.append(date_end)
+        elif date_start:
+            query += " AND date >= ?"
+            params.append(date_start)
+
+        if years_selected:
+            query += " AND strftime('%Y', date) IN ({})".format(','.join('?' for _ in years_selected))
+            params.extend(years_selected)
+
+        if months_selected:
+            query += " AND strftime('%m', date) IN ({})".format(','.join('?' for _ in months_selected))
+            params.extend(months_selected)
 
         if amount_filter and amount_value:
             if amount_filter == 'greater_than':
@@ -75,21 +88,19 @@ def analysis():
 
     total_amount = sum([expense['amount'] for expense in expenses])
 
-    return render_template('analysis.html', familiari=familiari, merchants=merchants, years=years, expenses=expenses, total_amount=total_amount)
+    return render_template('analysis.html', familiari=familiari, merchants=merchants, years=years, months=months, expenses=expenses, total_amount=total_amount)
 
 
 @analysis_bp.route('/pdf', methods=['POST'])
 def generate_pdf():
     conn = get_db_connection()
     
-    query = "SELECT * FROM expenses WHERE strftime('%Y', date) = ?"
-    params = [str(datetime.now().year)]
-
     familiari_selected = request.form.getlist('familiare')
     merchants_selected = request.form.getlist('merchant')
-    date_filter = request.form.get('date_filter')
     date_start = request.form.get('date_start')
     date_end = request.form.get('date_end')
+    years_selected = request.form.getlist('years')
+    months_selected = request.form.getlist('months')
     amount_filter = request.form.get('amount_filter')
     amount_value = request.form.get('amount_value')
 
@@ -104,14 +115,24 @@ def generate_pdf():
         query += " AND merchant IN ({})".format(','.join('?' for _ in merchants_selected))
         params.extend(merchants_selected)
 
-    if date_filter:
-        if date_filter == 'exact_month':
-            query += " AND strftime('%Y-%m', date) = ?"
-            params.append(date_start)
-        elif date_filter == 'date_range':
-            query += " AND date BETWEEN ? AND ?"
-            params.append(date_start)
-            params.append(date_end)
+    if date_start and date_end:
+        query += " AND date BETWEEN ? AND ?"
+        params.append(date_start)
+        params.append(date_end)
+    elif date_end:
+        query += " AND date <= ?"
+        params.append(date_end)
+    elif date_start:
+        query += " AND date >= ?"
+        params.append(date_start)
+
+    if years_selected:
+        query += " AND strftime('%Y', date) IN ({})".format(','.join('?' for _ in years_selected))
+        params.extend(years_selected)
+
+    if months_selected:
+        query += " AND strftime('%m', date) IN ({})".format(','.join('?' for _ in months_selected))
+        params.extend(months_selected)
 
     if amount_filter and amount_value:
         if amount_filter == 'greater_than':

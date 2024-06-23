@@ -57,49 +57,78 @@
                     {% endfor %}
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label for="date_filter">{{ _('Date Filter') }}</label>
-                    <select name="date_filter" id="date_filter" class="form-control">
-                        <option value="">{{ _('None') }}</option>
-                        <option value="exact_month" {% if request.form.get('date_filter') == 'exact_month' %}selected{% endif %}>{{ _('Exact Month') }}</option>
-                        <option value="date_range" {% if request.form.get('date_filter') == 'date_range' %}selected{% endif %}>{{ _('Date Range') }}</option>
-                    </select>
+
+            <div class="form-group">
+                <label>{{ _('Date Filter') }}</label>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="date_start">{{ _('Start Date') }}</label>
+                        <input type="date" name="date_start" id="date_start" class="form-control" value="{{ request.form.get('date_start') }}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="date_end">{{ _('End Date') }}</label>
+                        <input type="date" name="date_end" id="date_end" class="form-control" value="{{ request.form.get('date_end') }}">
+                    </div>
                 </div>
-                <div class="form-group col-md-3">
-                    <label for="date_start">{{ _('Start Date') }}</label>
-                    <input type="date" name="date_start" id="date_start" class="form-control" value="{{ request.form.get('date_start') }}">
+            </div>
+
+            <div class="form-group">
+                <label>{{ _('Month Filter') }}</label>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>{{ _('Years') }}</label>
+                        <div class="checkbox-container">
+                            {% for year in years %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="years" value="{{ year }}" {% if year in request.form.getlist('years') %}checked{% endif %}>
+                                    <label class="form-check-label">{{ year }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>{{ _('Months') }}</label>
+                        <div class="checkbox-container">
+                            {% for month in months %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="months" value="{{ month }}" {% if month in request.form.getlist('months') %}checked{% endif %}>
+                                    <label class="form-check-label">{{ month }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group col-md-3">
-                    <label for="date_end">{{ _('End Date') }}</label>
-                    <input type="date" name="date_end" id="date_end" class="form-control" value="{{ request.form.get('date_end') }}">
+            </div>
+
+            <div class="form-group">
+                <label>{{ _('Amount Filter') }}</label>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <select name="amount_filter" id="amount_filter" class="form-control">
+                            <option value="">{{ _('None') }}</option>
+                            <option value="greater_than" {% if request.form.get('amount_filter') == 'greater_than' %}selected{% endif %}>{{ _('Greater Than') }}</option>
+                            <option value="less_than" {% if request.form.get('amount_filter') == 'less_than' %}selected{% endif %}>{{ _('Less Than') }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="number" step="0.01" name="amount_value" id="amount_value" class="form-control" value="{{ request.form.get('amount_value') }}">
+                    </div>
                 </div>
-                <div class="form-group col-md-3">
-                    <label for="amount_filter">{{ _('Amount Filter') }}</label>
-                    <select name="amount_filter" id="amount_filter" class="form-control">
-                        <option value="">{{ _('None') }}</option>
-                        <option value="greater_than" {% if request.form.get('amount_filter') == 'greater_than' %}selected{% endif %}>{{ _('Greater Than') }}</option>
-                        <option value="less_than" {% if request.form.get('amount_filter') == 'less_than' %}selected{% endif %}>{{ _('Less Than') }}</option>
-                        <option value="between" {% if request.form.get('amount_filter') == 'between' %}selected{% endif %}>{{ _('Between') }}</option>
-                    </select>
-                </div>
-                <div class="form-group col-md-3">
-                    <label for="amount_value">{{ _('Amount') }}</label>
-                    <input type="number" step="0.01" name="amount_value" id="amount_value" class="form-control" value="{{ request.form.get('amount_value') }}">
-                </div>
-                <div class="form-group col-md-3 align-self-end">
-                    <button type="submit" class="btn btn-primary">{{ _('Filter') }}</button>
-                    <a href="{{ url_for('analysis.analysis') }}" class="btn btn-secondary">{{ _('Reset') }}</a> <!-- Pulsante Reset -->
-                </div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">{{ _('Filter') }}</button>
+                <a href="{{ url_for('analysis.analysis') }}" class="btn btn-secondary">{{ _('Reset') }}</a> <!-- Pulsante Reset -->
             </div>
         </form>
 
         <form action="{{ url_for('analysis.generate_pdf') }}" method="post">
             <input type="hidden" name="familiare" value="{{ request.form.getlist('familiare') }}">
             <input type="hidden" name="merchant" value="{{ request.form.getlist('merchant') }}">
-            <input type="hidden" name="date_filter" value="{{ request.form.get('date_filter') }}">
             <input type="hidden" name="date_start" value="{{ request.form.get('date_start') }}">
             <input type="hidden" name="date_end" value="{{ request.form.get('date_end') }}">
+            <input type="hidden" name="years" value="{{ request.form.getlist('years') }}">
+            <input type="hidden" name="months" value="{{ request.form.getlist('months') }}">
             <input type="hidden" name="amount_filter" value="{{ request.form.get('amount_filter') }}">
             <input type="hidden" name="amount_value" value="{{ request.form.get('amount_value') }}">
             <button type="submit" class="btn btn-secondary mb-4">{{ _('Generate PDF') }}</button>
